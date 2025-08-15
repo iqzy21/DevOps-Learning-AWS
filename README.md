@@ -214,4 +214,32 @@ secret acces key = passord
 example of access key 
 <img width="680" height="378" alt="image" src="https://github.com/user-attachments/assets/02872051-240f-474a-9e7a-a93b15a3930f" />
 
+What is the aws cli:
+The AWS cli lets you access to the API within your AWS management console how ever in a cli format it lets you run commands and it allows you to write scripts for resource managment. used in click ops to automate jobs 
+<img width="796" height="408" alt="image" src="https://github.com/user-attachments/assets/1ce66a20-9a56-4098-b1ec-bab5883ee678" />
 
+
+what is the AWS SDK?
+AWS SDK – Key Points
+
+What it is: AWS Software Development Kit – a set of pre-made code libraries for different programming languages.
+
+Purpose: Lets you interact with AWS services from your code (no need to use the AWS Console).
+
+Languages supported:
+
+Python, JavaScript, PHP, .NET, Ruby, Java, Go, Node.js, C++.
+
+Mobile SDKs: Android, iOS.
+
+IoT SDKs: Arduino, Embedded C, etc.
+
+How it works:
+
+Embed AWS actions (e.g., upload to S3, create EC2) directly in your app’s code.
+
+Write just a few lines instead of doing tasks manually in the console.
+
+Example: The AWS CLI is built on top of the AWS SDK for Python (Boto3).
+
+<img width="780" height="418" alt="Screenshot 2025-08-15 164952" src="https://github.com/user-attachments/assets/ce1aeda5-0271-43f3-8e61-70132d888166" />
