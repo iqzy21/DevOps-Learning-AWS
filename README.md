@@ -243,3 +243,74 @@ Write just a few lines instead of doing tasks manually in the console.
 Example: The AWS CLI is built on top of the AWS SDK for Python (Boto3).
 
 <img width="780" height="418" alt="Screenshot 2025-08-15 164952" src="https://github.com/user-attachments/assets/ce1aeda5-0271-43f3-8e61-70132d888166" />
+
+IAM Roles for services
+IAM Roles for Services
+What are IAM Roles?
+
+Allow AWS services to act on your behalf without needing long-term credentials.
+
+Provide temporary access instead of hardcoding access keys/passwords.
+
+Improve security and flexibility.
+
+Why use them?
+
+Services (like EC2, Lambda, CloudFormation) often need to interact with other AWS services.
+
+Roles let them do this securely by attaching the right permissions.
+
+Common Use Cases
+
+EC2 Instance Roles
+
+Attach a role when launching an instance.
+
+Example: EC2 reads/writes to S3 or DynamoDB.
+
+Lambda Function Roles
+
+Attach a role to a Lambda function.
+
+Example: Lambda writes logs to CloudWatch or accesses S3.
+
+CloudFormation Roles
+
+Allows CloudFormation to create/manage resources across multiple services.
+
+Keeps credentials secure while automating resource creation.
+
+Key Point
+
+Think of IAM roles as temporary keys for services.
+
+No hardcoded credentials.
+
+Easy to control what permissions each service has.
+
+IAM security tools
+IAM Credentials report(account level)
+a report that lists all your accounts users and status of their varius credentials
+
+IA, access Advisor
+shows the service permssions grated to users and when services were last acssesed 
+you can use this info to revise your policies 
+
+IAM guidlines and best poratices  
+do not use root unless its for initial account set up use IAM user instead with correct
+setup
+
+one physical user = one aws user 
+do not share logins and make sure everyone has an account
+assign users to groups and assign permissions
+crreate strong password policy
+enforce MFA to keep accoutn secure
+create and use roles for gving services permissions instead of hard coding
+use access keys for progammatic access (CLI/SDK)
+audit permissions of your account using IAM credentials report and IAM access advisor
+never share IAM users or access keys 
+
+summary: 
+<img width="677" height="310" alt="image" src="https://github.com/user-attachments/assets/87fe4c73-b8f1-489d-ace9-3f97e8216755" />
+
+
