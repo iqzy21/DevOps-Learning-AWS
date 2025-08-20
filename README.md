@@ -281,3 +281,117 @@ Shows the service permissions granted to users and when services were last acces
 
 ##Amazon compute
 
+Amazon EC2 
+What is EC2?
+
+EC2 = Elastic Compute Cloud
+
+Part of AWS IaaS (Infrastructure as a Service).
+
+Lets you rent virtual machines (servers) from AWS.
+
+Flexible & scalable – used by startups and large enterprises.
+
+Pay only for what you use.
+
+What EC2 Helps You Do
+
+Rent Virtual Machines
+
+Choose OS and configure as needed.
+
+EBS (Elastic Block Store)
+
+Virtual hard drive for EC2 instances.
+
+Stores data alongside VMs.
+
+ELB (Elastic Load Balancer)
+
+Distributes incoming traffic across multiple EC2 instances.
+
+Prevents one machine from being overloaded.
+
+ASG (Auto Scaling Group)
+
+Automatically scales instances up or down.
+
+Scale out = add more instances when traffic increases.
+
+Scale in = remove extra instances when traffic decreases.
+
+Saves cost – pay only for what’s running.
+
+Why EC2 is Important
+
+Core AWS service, fundamental to cloud computing.
+
+Introduces key cloud concepts:
+
+Virtual machines
+
+Scaling
+
+Load balancing
+
+
+EC2 configurations & options 
+1. Operating System (OS)
+
+Choose from Linux, Windows, macOS, and others.
+
+Decision depends on application requirements and what you’re comfortable managing.
+
+2. Compute Power (CPU & Cores)
+
+Decide how many CPUs/cores and how powerful they should be.
+
+Example:
+
+Small workloads → fewer cores.
+
+Heavy tasks (ML, big data) → more cores & processing power.
+
+3. Memory (RAM)
+
+Select how much RAM the instance will have.
+
+More RAM = better performance for large apps or real-time data processing.
+
+4. Storage Options
+
+EBS (Elastic Block Store): like a hard drive attached to one VM.
+
+EFS (Elastic File System): shared storage, accessible from multiple VMs.
+
+Instance Store: physical storage on the host machine. Very fast, but temporary (data lost when instance stops).
+
+5. Networking
+
+Configure network card speed (affects traffic handling).
+
+Option for a public IP address (makes instance accessible from internet).
+
+6. Security Groups (SGs)
+
+Act as firewalls for your instance.
+
+Control who can access and what type of traffic is allowed.
+
+Critical for securing EC2 instances.
+
+7. Bootstrap Script / User Data
+
+Script that runs automatically when the instance first launches.
+
+Can be used to:
+
+Install software
+
+Run updates
+
+Configure tasks
+
+⚠️ Key Point
+
+Right configuration matters → prevents underperformance or overpaying for unused resources.
