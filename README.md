@@ -395,3 +395,88 @@ Configure tasks
 ⚠️ Key Point
 
 Right configuration matters → prevents underperformance or overpaying for unused resources.
+
+EC2 instance types - depends on what job you want to do
+General purpose - used for small databases, small web servers or general work loads
+computed optomised - used if lots of processing power needed, gives ectra cpu for tasks like heavy computing or calculation processing
+memeory optomised - used when app needs alot of memory such as memeory data bases, big data processing or high performace computing work loads
+storage optomised - designed for fast and high throuput storage used for large data tests or data basees that require fast processing and big storage 
+accelated computing - this is for the GPU side and is used for machine learning, video processing or scientific simulatuion
+HPC optomised - provides high performace computing used for tasks that require alot of processing power for intensive computing tasks and fast networkingh 
+
+naming convention break down
+AWS Instance Naming Convention (Example: M5.2xlarge)
+
+1. Instance Class (Letter at the start)
+
+Tells you the purpose/type of instance.
+
+Examples:
+
+M = General Purpose
+
+C = Compute Optimized
+
+R = Memory Optimized
+
+T = Burstable General Purpose
+
+2. Generation (Number after the letter)
+
+Shows the version/generation of the instance.
+
+Higher number = newer, faster, more efficient.
+
+Example: 5 = 5th generation.
+
+3. Size (after the generation)
+
+Defines how big the instance is (CPU, memory, network).
+
+Examples:
+
+small, large, xlarge, 2xlarge … up to 32xlarge
+
+Bigger size = more resources = more cost.
+
+⚖️ Key Point: Choosing the Right Instance
+
+Too small → app may run out of resources, poor performance.
+
+Too big → wasted resources, higher costs.
+
+Goal = balance performance & cost.
+<img width="520" height="122" alt="image" src="https://github.com/user-attachments/assets/7f92149e-4311-4e9b-9a7f-e53b1d9b066d" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
