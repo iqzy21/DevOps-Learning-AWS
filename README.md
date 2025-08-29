@@ -682,8 +682,8 @@ Outbound: Where your EC2 can talk to outside.
 By default → Inbound = blocked, Outbound = open.
 <img width="683" height="356" alt="image" src="https://github.com/user-attachments/assets/101977ae-5068-423a-98bf-04ca2f17fa50" />
 
-
-
+Security Groups Good to know
+can be attactehd to multiple instances 
 
 
 
