@@ -448,14 +448,239 @@ Too big → wasted resources, higher costs.
 Goal = balance performance & cost.
 <img width="520" height="122" alt="image" src="https://github.com/user-attachments/assets/7f92149e-4311-4e9b-9a7f-e53b1d9b066d" />
 
+EC2 purchasing options 
+🔹 On-Demand Instances
 
+Pay per second (no long-term commitment).
 
+Best for short-term, unpredictable workloads.
 
+✅ Example: Testing a new app, temporary projects.
 
+Pros: Flexible, predictable pricing.
 
+Cons: Most expensive in the long run.
 
+🔹 Reserved Instances (RIs)
 
+Commit for 1 or 3 years (longer = cheaper).
 
+Types:
+
+Standard RI → lowest price, fixed instance type.
+
+Convertible RI → allows switching instance types.
+
+✅ Example: Steady, long-term production workloads.
+
+Pros: Big discounts.
+
+Cons: Less flexible than On-Demand.
+
+🔹 Savings Plans
+
+Commit to spend for 1 or 3 years.
+
+More flexible than RIs (can apply across instance types & regions).
+
+✅ Example: Long-term use, but want flexibility.
+
+Pros: Discounts + flexibility.
+
+Cons: Still requires long-term commitment.
+
+🔹 Spot Instances
+
+Bid for unused EC2 capacity at very low prices.
+
+Can be terminated by AWS anytime.
+
+✅ Example: Batch jobs, big data analysis, workloads that can be interrupted.
+
+Pros: Cheapest option.
+
+Cons: Unreliable, no guarantee of uptime.
+
+🔹 Dedicated Hosts
+
+Get an entire physical server.
+
+✅ Example: Compliance, software licensing tied to hardware.
+
+Pros: Full control of hardware.
+
+Cons: Expensive.
+
+🔹 Dedicated Instances
+
+Run on hardware not shared with other customers.
+
+✅ Example: Security or compliance needs.
+
+Pros: Isolation from others.
+
+Cons: No control over physical server itself.
+
+🔹 Capacity Reservations
+
+Reserve capacity in a specific Availability Zone (AZ).
+
+✅ Example: Mission-critical workloads that must run during peak demand.
+
+Pros: Guaranteed availability.
+
+Cons: Pay even if not used.
+
+✅ Quick Recommendations
+
+Unpredictable workloads → On-Demand.
+
+Long-term predictable workloads → Reserved Instances / Savings Plans.
+
+Interruptible workloads → Spot Instances.
+
+Compliance/licensing needs → Dedicated Hosts.
+
+Security isolation → Dedicated Instances.
+
+Guarantee capacity in AZ → Capacity Reservations.
+
+##Security Group & Cloud Networking 
+
+security groups controls how traffic flows in and out of an ec2 instance 
+its like firw walls how ever fire walls allow and deny security groups can oly allow what has been set 
+anythiong thats not set  as allowed but is allowed by default wont pass to the ec2 instance
+anything allowed on security groups for input will also be allowed for out put
+e.g you create a website using ec2 and you allow port 80 or 443 but not ssh 
+<img width="349" height="187" alt="image" src="https://github.com/user-attachments/assets/61ca939b-b422-4ff6-a725-3b942c585d74" />
+
+security group deeper dive
+they have access to ports and control which ports are open 
+e.g you makinbg a webserver and you need website traffic you would open port 80 instead of every other port or it would cause unwanted trafic
+
+authorised IP ranges such as IPv4 or IPv6 this can be set to which IP has the ability to access your instance 
+e.g if you use an SSH logi it will only allow it from an authorised IP you have set like home or office
+
+control of inbount network and control of outbound network - controlling what your instance is allowed to do and access 
+
+table break down 
+Rule 1: HTTP
+
+Protocol: TCP (since HTTP runs over TCP).
+
+Port Range: 80 (standard HTTP port).
+
+Source: 0.0.0.0/0 → open to the entire internet (anyone can access).
+
+Meaning: Allows inbound web traffic on port 80 from anywhere.
+
+Use Case: Hosting a public website.
+
+⚠️ Security Note: Since it’s open to 0.0.0.0/0, anyone can reach the server on port 80. This is normal for websites but make sure you only expose needed ports.
+
+🔹 Rule 2: SSH
+
+Protocol: TCP.
+
+Port Range: 22 (default SSH port).
+
+Source: 122.149.196.85/32 → a single specific IP.
+
+Meaning: Only the machine with that exact IP can connect via SSH.
+
+Use Case: Secure remote admin access for one trusted user.
+
+✅ Security Best Practice: This is a tight rule (restricted to one IP), which is good. Avoid 0.0.0.0/0 here, as that would expose SSH to the world.
+
+🔹 Rule 3: Custom TCP Rule
+
+Protocol: TCP.
+
+Port Range: Custom-defined (based on your app’s needs).
+
+Source: Can be set to a specific IP, subnet, or 0.0.0.0/0.
+
+Meaning: You open a specific TCP port for a particular application (e.g., 5000 for a Flask app, 3306 for MySQL, etc.).
+
+Use Case: Application-specific needs.
+
+⚠️ Security Note: Only open ports you absolutely need, and limit to trusted IPs whenever possible.
+
+✅ Key Takeaways from the Image
+
+HTTP (80) → Open to the world for web access.
+
+SSH (22) → Restricted to one IP for secure admin.
+
+Custom TCP → Flexible, but should be tightly controlled.
+
+Best Practice: Keep rules minimal. More open = more exposure = higher risk.
+<img width="489" height="115" alt="image" src="https://github.com/user-attachments/assets/47c0bc80-b393-4090-919a-88f088cf5515" />
+
+security group diagram 
+. EC2 Instance & Security Groups
+
+In the center, you see an EC2 Instance with its public IP (XX.XX.XX.XX).
+
+Attached to it are two Security Groups:
+
+Inbound (top box): Filters traffic coming in.
+
+Outbound (bottom box): Filters traffic going out.
+
+Think of these SGs as firewalls at the instance level.
+
+2. Inbound Rules (Top Path)
+
+Example from the diagram:
+
+Your Computer (IP XX.XX.XX.XX) tries to connect on Port 22 (SSH).
+
+Since the IP + Port match the inbound rule, the SG allows it ✅.
+
+Now you can SSH into the instance.
+
+Another computer also tries to connect on Port 22, but its IP is not authorized.
+
+The SG blocks this ❌ → No SSH access.
+
+👉 Takeaway: Inbound rules decide who can enter and on which port.
+
+3. Outbound Rules (Bottom Path)
+
+The instance itself may need to reach the Internet (WWW).
+
+Outbound SG rules decide what traffic can leave.
+
+By default, outbound is set to any IP on any port, so:
+
+The EC2 instance can download updates, fetch APIs, etc.
+
+⚠️ Best practice: Instead of leaving “all open,” restrict to required IPs/ports.
+
+👉 Takeaway: Outbound rules decide where your instance can go out to.
+
+4. Summary of Diagram
+
+Inbound Security Group (SG1): Acts like a door guard – lets in only specific IPs and ports.
+
+Outbound Security Group (SG2): Controls what leaves the instance – open by default but can be tightened.
+
+Your Computer (top-right): Authorized because its IP + Port 22 matches rule.
+
+Other Computer: Blocked because not authorized.
+
+Internet (bottom-right): Allowed outbound on any port by default.
+
+✅ Big Picture:
+Security Groups = filters for traffic.
+
+Inbound: Who can talk to your EC2.
+
+Outbound: Where your EC2 can talk to outside.
+
+By default → Inbound = blocked, Outbound = open.
+<img width="683" height="356" alt="image" src="https://github.com/user-attachments/assets/101977ae-5068-423a-98bf-04ca2f17fa50" />
 
 
 
