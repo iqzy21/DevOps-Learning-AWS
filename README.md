@@ -683,14 +683,146 @@ By default → Inbound = blocked, Outbound = open.
 <img width="683" height="356" alt="image" src="https://github.com/user-attachments/assets/101977ae-5068-423a-98bf-04ca2f17fa50" />
 
 Security Groups Good to know
-can be attactehd to multiple instances 
+Reusability
+
+One SG can be attached to multiple instances.
+
+Makes access management easier across many instances.
+
+2. Region & VPC Bound
+
+SGs are tied to a specific Region + VPC.
+
+❌ You cannot use the same SG across regions or VPCs.
+
+3. Where They Live
+
+SGs exist outside the EC2 instance.
+
+If SG blocks traffic → it never reaches your instance.
+
+✅ First place to check if you can’t connect to your instance.
+
+4. Best Practices
+
+Keep a separate SG just for SSH (port 22).
+
+Easier to tightly control admin access without touching app/web rules.
+
+5. Troubleshooting Tips
+
+Timeout (no response): Usually SG blocking traffic.
+
+Connection refused: Likely an app/service issue on the instance, not SG.
+
+6. Default Behavior
+
+Inbound: 🚫 Blocked by default (must explicitly allow ports like 22, 80, 443).
+
+Outbound: ✅ Allowed by default (instance can reach internet/others unless restricted).
+
+SGs are reusable firewalls at the instance level. They default to blocking inbound and allowing outbound, and most connectivity issues (timeouts) are caused by SG misconfigurations.
 
 
+Security Groups Referencing 
+1. Normal SG Rules
 
+Usually, SGs allow traffic based on IP addresses + ports.
 
+Problem: IPs can change (e.g., auto-scaling, dynamic environments).
 
+2. Referencing Other SGs
 
+Instead of IPs, you can allow traffic from another SG.
 
+Example in diagram:
+
+SG1 inbound rule allows traffic from SG1, SG2, SG3 on port 123.
+
+✅ Any instance in SG1, SG2, or SG3 can talk to the instance using SG1 on that port.
+
+3. Why It’s Useful
+
+Dynamic scaling: Instances come and go, but SG-based rules still work.
+
+Microservices:
+
+App tier SG ↔ Database tier SG.
+
+All app instances can securely talk to all DB instances.
+
+Simpler management: No need to update firewall rules for changing IPs.
+
+4. Key Takeaways
+
+SGs can reference other SGs instead of IPs.
+
+This keeps communication secure and flexible.
+
+Best for:
+
+Auto-scaling groups
+
+Clusters
+
+Multi-tier architectures (App ↔ DB ↔ Cache).
+
+👉 Easy way to remember:
+
+Normal SGs = Lock the door by IP.
+
+SG referencing = Lock the door by “group membership” instead.
+
+<img width="747" height="331" alt="image" src="https://github.com/user-attachments/assets/e95e177e-2279-415d-9568-2e09d09da086" />
+
+Classic ports to know 
+🔐 SSH
+
+Port: 22
+
+Use: Secure login to Linux instances.
+
+Tip: Restrict access to trusted IPs only (never open to the world).
+
+📂 FTP / SFTP
+
+FTP (File Transfer Protocol): Port 21 – insecure, being phased out.
+
+SFTP (Secure FTP): Port 22 – runs over SSH, encrypted & secure.
+
+🌍 HTTP / HTTPS
+
+HTTP: Port 80 – Unsecured web traffic.
+
+HTTPS: Port 443 – Secured web traffic (TLS/SSL), encrypts data.
+
+Tip: Always use HTTPS for sensitive apps/data.
+
+🌐 DNS
+
+Port: 53 (UDP/TCP)
+
+Use: Resolves domain names → IP addresses.
+
+Critical for: Any app that uses domain names.
+
+🖥 RDP (Remote Desktop Protocol)
+
+Port: 3389
+
+Use: Log in to Windows instances remotely.
+
+📧 SMTP (Simple Mail Transfer Protocol)
+
+Port: 25
+
+Use: Sending emails.
+
+🗄 Databases
+
+MySQL: Port 3306
+
+PostgreSQL: Port 5432
 
 
 
