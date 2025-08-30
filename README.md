@@ -730,33 +730,250 @@ high avalibility and horizontal scaling go hand in hand because you need to have
 achieve this by running applications across 2 or more AZs 
 Azs arer like independant dsata centres 
 The goal of HA is to survive a data centre loss so if a data centre goes down then you have a back up to keep yopur app running 
+<img width="681" height="340" alt="image" src="https://github.com/user-attachments/assets/f38496e3-1a71-41e6-a901-2b8616bc6dbe" />
 
+Load balancing 
+What is load balancing ?
+loadbalancing is a way rtop distribute traffic across servers or ec2 instances 
+acts like a traff=ic cop distrobuting requests to dofferent sewrvers 
+when trafic comes in the load balancer checks between the ec2 instances doiwnstream to see which is up and healthy to take on more traficc
+this process keeps you application avalible and working just incase one instance goes down  
+load balancer will automaticly dovert traffic to healthy ec2 instances
 
+reverse proxies
+what are reverse procies ?
+Definition:
 
+A reverse proxy sits between users and your servers.
 
+It handles requests on behalf of your servers.
 
+Similar to a Load Balancer:
 
+Both sit in the middle of client ↔ server communication.
 
+Both can distribute traffic to servers.
 
+Extra Functionality (compared to Load Balancer):
 
+Can route traffic based on request content (e.g., URL path, headers).
 
+Can send requests to different services or microservices.
 
+Provides features like caching, SSL termination, authentication, compression (depending on the setup).
 
+AWS Example:
 
+Application Load Balancer (ALB) acts like a reverse proxy.
 
+It supports content-based routing (e.g., /api → service A, /images → service B).
 
+Useful in microservice architectures.
 
+👉 Think of it like this:
 
+Load Balancer = Just balances traffic.
 
+Reverse Proxy = Balances traffic + adds smart routing & extra features.
+<img width="299" height="198" alt="image" src="https://github.com/user-attachments/assets/dbb5b343-65be-464c-aadb-4e64f735d3e0" />
 
+why use laod balancer?
+spread load across multiple downstram instances prevents instances being ioverloaded bettering user experience 
+expose single point of access DNS to you application 
+handles falures of downstream instances redirects trafic to other healthy instances 
+rdoes regular health checks on your instance 
+provide SSL termination HTTPS for websites load balamncer deals with the heavy encryption with HTTPS websites
+enforces stickeness with cookies - makes sures that each user is still on the same requst using cookies incase they are sent back
+high avalibility accross zones - designed to be avalible 
+seperate public traffic from provate traffic routes traffic different ways to enure what is external or uinternak trfafic
 
+why use an elastic load balancer 
+this is a managed load balancer 
+AWS garuntees that it will be working 
+AWS takes care of upgrades, maintanance and high avalability
+AWS provides only a few configuriation knobs 
 
+why DIY vs manage ones?
+it costs less to set up your own balanver but it will be more effort you need to handle maintanence monitoring scaling and fault tolerance on ypur own 
+with ELB AWS manages all that complexity 
+ey AWS Services ELB integrates with:
 
+Amazon Certificate Manager (ACM):
 
+Handles SSL/TLS certificates.
 
+ELB can terminate SSL for you (removes complexity).
 
+Amazon CloudWatch:
 
+Monitor ELB performance and health.
 
+Amazon Route 53:
+
+DNS routing integrated with ELB.
+
+AWS WAF (Web Application Firewall):
+
+Protects apps from attacks (SQL injection, XSS, etc.).
+
+AWS Global Accelerator:
+
+Improves performance and reliability for global traffic.
+
+Why Use ELB?
+
+Reliable & Low-Maintenance → AWS manages availability.
+
+Time-Saving → No need to build/maintain your own load balancer.
+
+Scalable → Works with Auto Scaling seamlessly.
+
+More Costly than DIY solutions, but saves effort and operational overhead.
+
+Health checks
+key part of load balancing
+the allow the load balancer to know idf instances are good enough to handle traffic and it is done via requests
+a request is sent to a HTTP protocol on any port then to the end point 
+the heath check is done on a port and a route(/health is common)
+is the response is not 200 being OK then the intsance is unhealthy 
+IF 200 IS RETURNED THEN ITS CONSIDERED HEALTHY
+
+<img width="475" height="161" alt="image" src="https://github.com/user-attachments/assets/cd7b7aa4-646d-4820-bc94-5646b67f6291" />
+
+types of load balancers on aws 
+there are 4 kinds
+clasic load balancer (v1 generation) 2009 CLB
+handles the basics HTTP,HTTPS,TCP,SSL 
+gets the job done 
+lacks new generation features
+
+Application load balancver (v2 new gen) 2016 - ALB
+HHTP,HHTPS, Websocket
+ideal for modern apps 
+works on the application layer
+smarter able to diorect traffic based on rewquestions liek URLS headers clear paramaters and cookies
+perfect fpr microservicexzs or containers that need routing ]#
+
+network load balancer (v2 - new gen) - 2017 NLB
+TCP TLS, UDP
+LAYER 4 LOAD BALANNCER 
+designed for high performace scenarios where low latency is needed 
+ideal for handling millions of requests per second
+used for low latency applications e.g for real time gaming or high frequency tadingh systems
+Gatwway laod balancer - 2020 - GWLB
+operates at layer 3 network layer - IP protocal 
+helps deploy scale and manage third party mnetwrok applications like firewalls intrusion detection systems and traffic analysers in your vpc 
+
+Which AWS Load Balancer Should I Choose?
+
+Classic Load Balancer (CLB)
+
+Still works but old generation.
+
+Limited features.
+
+AWS recommends using ALB, NLB, or Gateway LB instead.
+
+Internal vs External
+
+Internal LB: Routes traffic inside your VPC (e.g., microservices, private apps).
+
+External LB: Handles traffic from the public internet (e.g., websites, APIs).
+
+Recommended Load Balancers
+
+Application Load Balancer (ALB)
+
+Best for: Web applications.
+
+Features:
+
+Content-based routing (e.g., /api → service A, /images → service B).
+
+Supports modern protocols (HTTP/2, WebSockets).
+
+Good for microservices & container-based apps.
+
+Network Load Balancer (NLB)
+
+Best for: High-performance, low-latency TCP/UDP traffic.
+
+Features:
+
+Handles millions of requests per second.
+
+Very low latency.
+
+Ideal for gaming servers, IoT, VoIP, or real-time apps.
+
+Gateway Load Balancer (GWLB)
+
+Best for: Advanced network applications.
+
+Features:
+
+Routes traffic to third-party appliances (e.g., firewalls, intrusion detection, deep packet inspection).
+
+Useful in secure network setups.
+
+👉 Quick Decision Guide:
+
+Traditional web app? → ALB
+
+Need ultra-fast TCP/UDP performance? → NLB
+
+Advanced networking (firewalls, IDS, etc.)? → GWLB
+
+Old system? → Only then use CLB (otherwise avoid).
+
+load balancer security groups 
+Load Balancer Security Group
+
+Purpose: Expose the application to the internet safely.
+
+Rules:
+
+Allows HTTP (TCP, port 80) from 0.0.0.0/0 → anyone on the internet.
+
+Allows HTTPS (TCP, port 443) from 0.0.0.0/0 → anyone on the internet.
+
+Effect: Users can reach the load balancer using either HTTP or HTTPS.
+
+Key point: The load balancer is the only public-facing component.
+
+2. Application Security Group (EC2/Instances behind LB)
+
+Purpose: Protect backend EC2/Istio instances.
+
+Rules:
+
+Allows HTTP (TCP, port 80), but only from the Load Balancer SG (not from the public internet).
+
+In the example, the source is set to the load balancer’s SG (sg-054b5ff5ea02f2b6e).
+
+Effect: The backend instances will not accept traffic directly from users. They only trust requests forwarded by the load balancer.
+
+Why This Works (Analogy)
+
+Think of it as:
+
+Load Balancer = Front Door → Anyone can knock on it (open to the internet).
+
+Application Servers = Private Rooms → Only the front door (LB) has the key; strangers can’t walk in directly.
+
+This design ensures:
+✅ Security – Backends aren’t exposed to direct attacks from the internet.
+✅ Scalability – Load balancer can distribute traffic evenly to multiple instances.
+✅ Flexibility – You can apply SSL termination, routing, or WAF (firewall rules) at the load balancer level.
+<img width="770" height="388" alt="image" src="https://github.com/user-attachments/assets/82a22a67-d3e3-4627-8a97-caf3643d7bfd" />
+
+application load balancer
+ALB operates at layer 7 HTTP layer
+samrty enough to understadn what is being reqwuested such as headers, cookies ,URLs, strings and more 
+load balance traffic to multiple HTTP applications across machines 
+Load balance to multiple applications on the same machine 
+has suppoert for HTTP/2 and web socket
+suppoerts redirects from HTTP to HTTPS as an example 
 
 
 
