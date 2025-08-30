@@ -654,3 +654,138 @@ SGs are reusable firewalls at the instance level. They default to blocking inbou
 ### 🗄 Databases
 - **MySQL**: Port 3306
 - **PostgreSQL**: Port 5432
+
+##  Storage 
+Whats an EBS volume 
+EBS is a network drove tht can be attached to EC2 instances 
+Its like a virtual storage 
+It allows your instance to persist data even if its off e.g saves data for your instances 
+bound to AZs 
+think of it like a networkUSBstick
+why is it used
+data persistance - data stays in there Even if an instance is terminated there will still be data saved in the EBS 
+ideal for storing long term data like data bases 
+
+AMI overview 
+Amazon machine image 
+AMI are a custyomisation of EC2 instances 
+you can add your own software,config,OS and monitoring
+good if you want a faster boot  config time because your software is pre packaged 
+
+AMIs are built for specific reigons but can be copied across 
+
+You can launch ec2 instances from 
+A public AMI: AWS provided
+Your own AMI: make and maintain you self
+AWS market place: AMI that some one else made and sells 
+
+Amazon EFS - elastic file system 
+amazon managed solution for shared file storage 
+Its a managed netwoirk file system that can be mounted onto multiple EC2 instances to share the same files
+like a network drove that all instances can access 
+EFS works with EC2 instances that are in in multi AZs 
+Its highly avalible
+scalable - grows as the data grows 
+how ever it is expensive and should be used when only needed
+
+#Load balancing & scalability 
+Scalability & High Availability
+scalability means that an application / system can handle greater laods by adapting its size
+2 types
+vertical - when more power is added e.g upgrading a computer such as adding more ram, cpu power ect while the machine staays the same
+horizontal (elasticity) - add more instances of resource to handle the workload rather than making the server bigger you add more servers to balance the workload
+
+scalability is about handling greaterloads
+high avalibility ensuring the system is up and running even parts of it fail 
+
+call center example:
+
+Vertical scalability: One person with better tools to handle more calls.
+
+Horizontal scalability: Hire more people to share the workload.
+
+High availability (HA): Have backups/standby staff so operations continue if someone is unavailable.
+
+
+virticle scalability
+means increasing the size of an instance adding storage ram and cpu power
+example 
+if you have a t2.micro and need to upgrade you can scale and change to t2.large
+virtical scalability is conmmon for non distributed systems such as databases 
+DBS like RDS and elasticache are services thhat can scale vertically.
+there is usually a hardware limit to how much you can scale 
+
+horizontal scalability 
+
+horizontal scalability means to increasse the number of instances/ systems for you application to handle more load
+add more michances / instances based on work load 
+each machine does part of the work allowing you to handle more data
+easier to manage if one instance failsm you have back up
+e.g if you haver website traffic you can start more instances to handle then stop once trafic lesens 
+easy to impliment and can be automated than ks to amazon services and ec2 
+
+high avalibility 
+means having multiple locations for you application / system to ensure if one part of infra failes anotehr part can take over 
+high avalibility and horizontal scaling go hand in hand because you need to have multiple instances across locations 
+achieve this by running applications across 2 or more AZs 
+Azs arer like independant dsata centres 
+The goal of HA is to survive a data centre loss so if a data centre goes down then you have a back up to keep yopur app running 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
