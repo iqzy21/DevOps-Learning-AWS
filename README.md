@@ -1186,3 +1186,198 @@ Uses server name indication SNI to make it work
 Newtork load balancer V2
 supports multiple listeners with multiple ssl certs
 uses server name indication sni to make it work 
+
+connection draining 
+Purpose: Prevents cutting off ongoing user requests when removing an instance from a load balancer.
+
+Terminology:
+
+Classic Load Balancer (CLB) → Connection Draining
+
+Application Load Balancer (ALB) & Network Load Balancer (NLB) → Deregistration Delay
+
+How it Works
+
+When an instance is deregistered (unhealthy, scaling down, etc.):
+
+The load balancer stops sending new requests to that instance.
+
+Any in-flight requests (already connected) are allowed to complete.
+
+Timing Control
+
+Can set the wait time: 1–3,600 seconds (default = 300 seconds = 5 minutes).
+
+Use Cases:
+
+Short requests → Set lower value to speed up removal.
+
+Instant removal → Set to 0.
+
+Long-running requests → Keep higher value to avoid user disruption.
+
+✅ Key Benefit: Ensures smooth user experience during scaling or instance health changes by letting active sessions finish before removal.
+
+auto scalling groups
+what is an auto scaling group ASG 
+in real life the load on your application and website can change 
+in the cloud you can create and get rid of servers very quickly 
+
+the goal of ASF
+scale out add EC2 intsantce ti match increase load
+scale in remove EC2 instances to match decrease load
+ensure there is a min and max of EC2 instances running
+auto register new instances to a load balancer
+re create an ec2 instance in case a previous one is terminated 
+ASG is free you only pay for the ex2 instanc e
+
+auto scalling group 
+📌 Key Settings (shown in the image):
+
+Minimum Capacity
+
+The fewest instances that must always run.
+
+Ensures your app is always available, even during low traffic.
+
+Desired Capacity
+
+The “target” number of instances for normal load.
+
+ASG tries to keep this number steady under typical conditions.
+
+Maximum Capacity
+
+The upper limit of instances ASG can create.
+
+Prevents overspending and unnecessary scaling.
+
+Scaling Behavior
+
+Scale Out (Traffic ↑)
+
+ASG adds new EC2 instances when demand rises.
+
+Can scale up until it reaches the maximum capacity.
+
+Scale In (Traffic ↓)
+
+ASG removes instances when demand drops.
+
+Reduces costs but never goes below the minimum capacity.
+
+✅ Result:
+ASGs automatically balance performance and cost:
+
+Keep enough instances running for reliability.
+
+Add instances during spikes.
+
+Remove them when demand falls.
+
+Auto Scaling Group in AWS with Load Balancer
+1. Users
+
+Send traffic to your application (website, mobile app, or service).
+
+2. Elastic Load Balancer (ELB / ALB)
+
+Distributes traffic evenly across EC2 instances.
+
+Prevents overload on any single instance.
+
+Performs health checks:
+
+Continuously monitors EC2 instances.
+
+If an instance is unhealthy → stops sending traffic to it.
+
+Once fixed/replaced → resumes routing traffic.
+
+3. Auto Scaling Group (ASG)
+
+Automatically adjusts the number of instances based on demand.
+
+Scale Out → adds instances during high traffic (e.g., sales day).
+
+Scale In → reduces instances when traffic drops to save costs.
+
+Works with the ELB to ensure only healthy instances serve traffic.
+
+4. Amazon Machine Image (AMI)
+
+Custom AMIs can be used to launch preconfigured instances.
+
+Every new instance created by ASG is ready-to-go with:
+
+Your software
+
+Configurations
+
+Dependencies
+
+✅ Big Picture:
+
+Load Balancer = smart traffic director.
+
+ASG = dynamic capacity manager.
+
+AMI = ensures consistency across all instances.
+
+Together → they create a scalable, fault-tolerant, and cost-efficient system.
+<img width="670" height="318" alt="image" src="https://github.com/user-attachments/assets/836935b6-7075-414d-aaf3-d00fbca605f8" />
+
+Auto Scaling Group Atributes
+Launch Template includes:
+
+AMI → Pre-configured Amazon Machine Image (ensures all EC2s start with same setup).
+
+Instance Type → Defines resources (CPU, memory, storage capacity).
+
+EBS Volumes → Persistent storage attached to EC2s.
+
+Security Groups → Virtual firewalls for inbound/outbound traffic.
+
+SSH Key Pair → Secure login credentials for EC2 access.
+
+IAM Role → Grants EC2 permissions to use AWS services securely.
+
+VPC + Subnets → Network placement for instances.
+
+Load Balancer → Registers instances for traffic distribution.
+
+Other ASG attributes:
+
+Min Size / Max Size / Initial Capacity → Controls number of running instances.
+
+Scaling Policies → Rules that tell ASG when to scale in/out based on demand.
+<img width="208" height="241" alt="image" src="https://github.com/user-attachments/assets/4f5d8424-962e-43bb-ba0e-2a4633a4d013" />
+
+Auto Scaling - Cloud Watch Alarms & Scaling
+cloud watch alarms keep an eye on certain metricts across ASG like power and cpu usage or a custom metric 
+once alarm is triggered AWS can take action 
+you can use scaling policice such as scale out and scale in wehich increase and decrease instances 
+
+
+auto scaling group scalling policies 
+
+dynamic scaling 
+target tracking scaling 
+simple to set up
+ecxample i wanrt the average ASG usage cpu usage to stay around 40%
+
+simple/step scall9jng 
+when cloud watch alarm is trigered ecample CPU > 70 % add 2 units
+when cloudwatch alarm is triggered example CPU < 30% then remove 1
+
+schedule scalling 
+amnticipatye a scalling based on known usage patterens 
+example: increase the min capacity to 10 at 5pm on fridays 
+
+
+
+
+
+
+
+
