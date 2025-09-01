@@ -968,41 +968,221 @@ This design ensures:
 <img width="770" height="388" alt="image" src="https://github.com/user-attachments/assets/82a22a67-d3e3-4627-8a97-caf3643d7bfd" />
 
 application load balancer
+Application Load Balancer (ALB) Notes + Examples
+
 ALB operates at layer 7 HTTP layer
-samrty enough to understadn what is being reqwuested such as headers, cookies ,URLs, strings and more 
-load balance traffic to multiple HTTP applications across machines 
-Load balance to multiple applications on the same machine 
-has suppoert for HTTP/2 and web socket
-suppoerts redirects from HTTP to HTTPS as an example 
+Example: it can inspect HTTP headers to decide routing, unlike a Classic Load Balancer which only works at TCP level.
 
+Smart enough to understand what is being requested such as headers, cookies, URLs, strings and more
+Example: a request with Cookie: user=premium could be routed to a premium server pool.
 
+Load balance traffic to multiple HTTP applications across machines
+Example: spreading traffic across 3 EC2 instances running the same web app so no single machine gets overloaded.
 
+Load balance to multiple applications on the same machine
+Example: one EC2 runs /app1 (Node.js) on port 3000 and /app2 (Flask) on port 4000 — ALB routes to the correct one.
 
+Has support for HTTP/2 and WebSocket
+Example: useful for chat apps needing WebSocket connections or faster loading with HTTP/2 multiplexing.
 
+Supports redirects from HTTP to HTTPS as an example
+Example: http://myshop.com automatically redirects to https://myshop.com.
 
+Routing tables to different target groups
+Example: /images/* → servers optimized for images, /api/* → backend servers.
 
+Route based on path in URL
+Example: /blog/* goes to blog servers, /shop/* goes to e-commerce servers.
 
+Routing based on host name in URL
+Example: api.myapp.com → API target group, admin.myapp.com → admin dashboard.
 
+Routing based on query string, headers
+Example: ?category=toys → toy catalog servers, X-Region: EU header → EU servers.
 
+ALB are a great fit for microservices & container based applications e.g. Docker & Amazon ECS
+Example: each ECS service (auth, payments, users) gets its own target group, ALB directs requests correctly.
 
+Has a port mapping feature to redirect to dynamic port in ECS
+Example: ECS assigns random container ports (32768, 32769, etc.), ALB maps incoming traffic automatically.
 
+In comparison we need multiple classic load balancers per application
+Example: 3 microservices (/auth, /cart, /profile) would need 3 CLBs, but only 1 ALB with routing rules.
 
+how alb HANDLES HTTP BASED TRAFIC 
+Users send HTTP requests → ALB sits in front of the application and receives the traffic.
 
+ALB examines each request → decides where to route based on rules (path, host, headers, etc.).
 
+Routes traffic to Target Groups:
 
+A target group = a collection of resources (EC2, ECS tasks, or Lambda).
 
+Each target group usually supports a specific service.
 
+Example: one target group for user-related tasks (login, profile).
 
+Another for product search or other functionality.
 
+Health Checks:
 
+ALB continuously runs health checks on targets.
 
+If an instance fails health checks, ALB automatically stops sending traffic to it and routes requests to healthy ones.
 
+Built for HTTP/HTTPS traffic:
 
+Can handle many web-based services.
 
+Smart enough to separate traffic by path, hostname, or query.
 
+Why this matters:
 
+You can route different requests to different parts of your application using one ALB.
 
+Example:
 
+https://example.com/profile → routes to User Service Target Group.
 
+https://example.com/search → routes to Search Service Target Group.
 
+Benefit:
 
+Keeps services separate so one doesn’t interfere with the other.
+
+Makes scaling and performance much easier (great for microservices)
+<img width="547" height="307" alt="image" src="https://github.com/user-attachments/assets/189c5ef9-ca01-478e-9db1-de8316096a09" />
+
+Application Load Balancer (Target Groups)
+what are target groups
+tagret groups are groups of resourves like ec2 lambda bunctionmns and esc tasks that your ALB routes traffic to 
+they are distinaseion for requests that a load balancer handles 
+each target group os toed to certain parts of an applicatioon allowing scalability of yopour system independatly 
+
+different target groups
+EEC2 instances ( can be managed by and auto scalling group ) - HTTP
+ECS tasks (managed by ECS) - HTTP
+lambda functions - HTTP request is translated into a JSON event
+Ip addresses - must be private IPs
+ALB can check route to multiple target groups
+Health checks are at the target group level 
+
+ALB good to know 
+has a fixed host name provided by aws 
+the application servers dont see the IP of the client directly 
+The true IP of the client is inserted in the header X forwarded-for
+We can also get Port (X-forwarded-port) and proto (X-forwarded-proto)
+<img width="622" height="175" alt="image" src="https://github.com/user-attachments/assets/80cbebdc-cf9d-4b18-947a-483692779452" />
+
+network load balancers
+optoimised for handling extreme performance with low lantencyu 
+works on the network layer layer 4
+forward TCP & UDP traffic to your instances 
+Handle millions of requests per seconds 
+less latency - 100ms compared to ALB which has 400ms 
+NLB has one static IP per AZ and supportas assigning alastic IP
+NLB are used for extreme performance TCP or UDP traffic
+#Not included in aws free tier 
+used for stuff liek IOT gaming Real time processing 
+
+network load balanced with TCP trafic 
+works at layer 4 and routes raw tcp or udp traffic to instances without getting involved with higher level traffic likr HTTP and HTTPS
+
+How Traffic is Routed
+
+Incoming Request (WWW) → Enters NLB with TCP rules.
+
+NLB forwards traffic to a Target Group:
+
+Users Application → Uses TCP rules.
+
+Search Application → Uses HTTP (inside TCP).
+
+Key Points About NLB
+
+Does not:
+
+Inspect HTTP headers.
+
+Do SSL termination (no HTTPS handling at Layer 7).
+
+Only forwards traffic fast and efficiently without changing it.
+
+When to Use NLB
+
+✅ Best for raw performance and low latency.
+✅ Can handle millions of requests per second.
+✅ Ideal for:
+
+Real-time apps (gaming, streaming, chat, etc.).
+
+Applications sensitive to latency and connection speed.
+✅ Good when different apps use different protocols (TCP vs HTTP).
+
+NLB vs ALB
+
+NLB (Layer 4): Speed, raw TCP/UDP forwarding.
+
+ALB (Layer 7): Understands HTTP/HTTPS, can do SSL termination, read headers, smarter routing.
+
+👉 Summary:
+The NLB is like a super-fast traffic cop at the network layer. It doesn’t “look inside” the traffic (like ALB would), it just forwards TCP/UDP connections to the right target group based on rules. Great for performance-heavy apps needing speed and scalability.
+<img width="767" height="322" alt="image" src="https://github.com/user-attachments/assets/b7214f2f-4350-4f81-a65a-00bcdfe08f03" />
+
+sticky sessions (session afinity) 
+sticky sessions ensure the client or user is router to the same instance behind the load balancer
+
+works accross different load balancers 
+the load balancer uses a cookie to keep track of which instance a client is connected to
+each cookie binds a user to a certain server 
+you can controoll their time and experation 
+a use case when an application store session data that is not share across instances 
+makes sure session data is not lost
+for exampl a cart cookie on an e commerce site since this is a seperate instance a cookie will make sure the usedr doesnt loose their cart data 
+may brinhgg imbalance ti the load over the back end of instances 
+use if needed 
+
+SSL/TLS basics 
+crutial when dewaling with internet securty with load balancers 
+SSL cert alloows traffic between your clients/users and load balanncer to be encrypted in transit(in-flight-encryption)
+
+SSL refers to secure sockets layer, used to encrypt connections 
+TLS refers to transport Layer security which is a newer version 
+Nowdays TLS certificates are mainly used but people still refer to it as TLS
+
+public SSL certs are issued by Certificate autheriries 
+such as Comodo, symantec,Godaddy, global sign ect 
+
+SSL certifications have experation dates you sey amd must be renewwed 
+
+load balancer - SSL certificates 
+load balancer uses a X509 cert SSL certificate 
+AWS allows us to mange this using their certificate manager ACM 
+ACM is a place where you can create renew and manage certicicates 
+you can upload youw own certificates 
+HTTPS Listener:
+this is how we wensure traffic is encrypted 
+you must specify defaultr certificate 
+you can add an optional list of certs to support multiple domains
+clients can use SNI server name indicatiob to specify the host name they reach 
+can specify sdecurity polocies to support oldedr versions of SSL clients 
+
+SSL -  SNI server name indication 
+SNI solves the problem of loading multiople SSL certificates onto one web server (to server multiple websites)
+Its a newer protocal and requires the client to indicate the host name of the target server int he initial SSL gghandshake 
+The server will then find the crrect certidicate or return the default one
+only works for ALB and NLB new gen, cloufront
+doesnt not weork for CLB old gen 
+
+ELB - SSL how do they work on differnt load balancers
+CLB - classic load balanver v2
+supports only one SSL cert
+must use multiple CLB for multple host name with multiple SSL certificates 
+
+ALB Application load balancer v2 
+Supports multiple listner with multiple SSL certificates 
+Uses server name indication SNI to make it work 
+
+Newtork load balancer V2
+supports multiple listeners with multiple ssl certs
+uses server name indication sni to make it work 
