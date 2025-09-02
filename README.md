@@ -1856,18 +1856,301 @@ elastic kubermetes service amazon EKS
 amazon managed kubernetes 
 with EKS you can take advantage 
 
+aws fargate amazon own serverless containe rplatfoprm
+works with ecs and eks
+
+amazon ecr 
+stiores container images 
+
+amazon ECS - EC2 launch type
+ECS elastic container services 
+launch docker container on aws = lauch ecs tasks on ecs clusters
+ec2 launch type: you must provision abd nmain tain the infrastructure (the ec2 instances)
+Each ec2 instance must trun the ECS agent to register in the ecs cluster
+AWS takes care if starting/stopping containers 
+<img width="322" height="316" alt="image" src="https://github.com/user-attachments/assets/8c66c9fd-d269-4055-a723-8119c881b928" />
+
+amazon ecs fargate launch type
+Launch docker containers on AWS
+you do not provision the infrastructure no ec2 instances to manage 
+its all serverless
+yopu just create task defenitions
+AWS just runs ECS tasks for you based on the CPU / RAM you need 
+To clase, just increassee the number of tasks simple- no more ec2 instance tasks 
+
+amazon ecs IAM roles for ECS
+Used by tge ECS agent 
+makes API xcales to ECS servuce 
+Send container logs to cloudwatch logs 
+Pull dcker imaghe from ECR
+Reference sensitive data in secreyts 
+manager ort SSM poarameter store 
+
+ecs TASK ROLE
+ALLOWS EACH TASK TO HAVE A SP[ECIFIC ROLE
+USE DIFFERENT ROLES FOR TTHR DIFFERENT ecs SERVBICES YOU RIN 
+tASK ROLE IS DEFINED IN THE TASK DEFENITION 
+
+<img width="353" height="367" alt="image" src="https://github.com/user-attachments/assets/0369381e-3e64-49b4-9583-a8aa8fcd28cb" />
+
+amazon ECS load balancer intigration 
+Application load balancer supported and works for most use cases the go to choice as it operates at layer 7
+worksz with https/http 
+supports path based routing 
+
+NLB reccomended for high performamve or to pair with AWS provate link ddoesnt have advance feature
+
+CLB supported not recommended used for lgacy systems 
+<img width="330" height="364" alt="image" src="https://github.com/user-attachments/assets/f65a601f-6bea-4056-8bd3-5babbdb76ee4" />
+
+ECS service autoi scalling
+🔹 What is ECS Service Auto Scaling?
+
+Automatically adjusts the number of ECS tasks running based on demand.
+
+Scales up when traffic/CPU goes up.
+
+Scales down when things calm down → saves money.
+
+Uses AWS Application Auto Scaling under the hood.
+
+🔹 Metrics Used for Scaling
+
+CPU utilization
+
+Memory utilization
+
+ALB (Application Load Balancer) request count per target
+
+Other custom CloudWatch metrics
+
+🔹 Scaling Strategies
+
+Target Tracking (simple & dynamic)
+
+Set a target (e.g., keep CPU at 40%).
+
+AWS automatically adjusts tasks to maintain that target.
+
+Easiest to use.
+
+Step Scaling (fine-grained control)
+
+Define thresholds and actions:
+
+If CPU > 70% → add 2 tasks.
+
+If CPU < 30% → remove 1 task.
+
+More manual but gives full control.
+
+Scheduled Scaling (predictable traffic)
+
+Pre-plan scaling events.
+
+Example: If traffic spikes every Tuesday 5 PM → scale up before, scale down after.
+
+🔹 ECS with Fargate
+
+No need to manage EC2 instances.
+
+You only define how many tasks you want.
+
+AWS manages infrastructure scaling for you.
+
+✅ Summary
+
+ECS auto scaling = handles spikes, saves costs.
+
+Options: Target Tracking (simple), Step Scaling (precise), Scheduled Scaling (predictable).
+
+Even easier with Fargate since AWS manages the servers.
+
+amazon ECR 
+What is ECR?
+
+Cloud storage system for Docker images.
+
+Works like a container image hub (similar to Docker Hub but on AWS).
+
+Designed to integrate directly with ECS.
+
+Stores images securely (backed by Amazon S3).
+
+🔹 Types of Repositories
+
+Private Repositories
+
+Store internal/sensitive Docker images.
+
+Access controlled by IAM.
+
+Public Repositories
+
+For open-source or shared images.
+
+Amazon ECR Public Gallery provides free/public images.
+
+🔹 ECS Integration
+
+ECS tasks can pull images directly from ECR.
+
+Makes deployment smooth and automatic.
+
+🔹 Security & Access
+
+Permissions controlled with IAM policies.
+
+Common issue: if pulling fails → check IAM permissions.
+
+🔹 Extra Features
+
+Vulnerability Scanning → scans images for security risks.
+
+Versioning & Tagging → manage multiple image versions (e.g., v1.0, latest).
+
+Lifecycle Management → automatically deletes old images to save space.
+
+✅ Summary:
+ECR = secure, scalable Docker image storage on AWS. Integrated with ECS, controlled by IAM, with extra features like scanning, versioning, and lifecycle cleanup.
+<img width="200" height="369" alt="image" src="https://github.com/user-attachments/assets/83b4f707-f144-40be-b5b5-8b323ffa303e" />
+
+Amazon EKS 
+What is EKS?
+
+Fully managed Kubernetes service on AWS.
+
+AWS manages the control plane (updates, patching, scaling).
+
+You just focus on running apps, not cluster management.
+
+🔹 Why Kubernetes?
+
+Open-source container orchestration platform.
+
+Automates deployment, scaling, and management of containers.
+
+Helps run containers at scale.
+
+🔹 EKS vs ECS
+
+ECS (Elastic Container Service)
+
+AWS-specific, simpler API.
+
+Deep integration with AWS services.
+
+EKS (Elastic Kubernetes Service)
+
+Based on Kubernetes (open-source, cloud agnostic).
+
+Easier migration between AWS, GCP, Azure (AKS), or on-prem.
+
+Ideal if you already use Kubernetes elsewhere.
+
+🔹 Launch Types in EKS
+
+EC2 Launch Type → You manage worker nodes (EC2), AWS manages control plane.
+
+Fargate Launch Type → Serverless, AWS runs the containers, no need to manage EC2.
+
+🔹 Use Cases
+
+Migrating from on-prem or another cloud while keeping Kubernetes.
+
+Running workloads across multiple clouds (cloud agnostic).
+
+Multi-region deployments → 1 EKS cluster per region.
+
+🔹 Monitoring & Insights
+
+Integrated with CloudWatch Container Insights.
+
+Tracks logs, metrics, performance.
+
+Helps troubleshoot & optimize workloads.
 
 
+EKS diagram 
+EKS Architecture (based on the diagram)
+🔹 Core Components
 
+EKS Worker Nodes
 
+The yellow boxes = EC2 instances running Kubernetes worker processes.
 
+These nodes actually run your pods (smallest unit in Kubernetes).
 
+Pods
 
+Groups of containers that perform specific tasks.
 
+Hosted inside the worker nodes.
 
+Auto Scaling Group (ASG)
 
+Worker nodes are part of an ASG.
 
+Scales nodes up/down automatically based on load.
 
+🔹 Networking & Security (VPC setup)
 
+VPC (Virtual Private Cloud)
 
+Isolated private network where the entire EKS setup runs.
 
+Ensures secure communication between components.
+
+AZs (Availability Zones)
+
+Multiple AZs used for high availability.
+
+If one AZ goes down, others keep the app running.
+
+Private Subnets
+
+Worker nodes are deployed here for security.
+
+Not directly exposed to the public internet.
+
+NAT Gateway
+
+One in each AZ.
+
+Lets worker nodes access the internet outbound (e.g., to pull Docker images, updates).
+
+Prevents inbound public traffic from reaching nodes directly.
+
+🔹 Traffic Management
+
+ELB (Elastic Load Balancer)
+
+Distributes incoming user traffic across nodes.
+
+Sends requests to healthy nodes only.
+
+Improves performance + fault tolerance.
+
+🔹 Why Multiple AZs?
+
+Provides resilience & fault tolerance.
+
+If one AZ fails, traffic is routed to nodes in other AZs.
+
+Keeps the application always available.
+
+✅ Summary
+
+This architecture is a secure, scalable, highly available setup for Kubernetes on AWS.
+
+EKS nodes + pods → Run your workloads.
+
+ELB → Balances user traffic.
+
+NAT Gateways → Allow safe outbound internet access.
+
+VPC + private subnets → Provide security and isolation.
+
+Multiple AZs → Ensure uptime even if one zone fails.
+
+<img width="758" height="365" alt="image" src="https://github.com/user-attachments/assets/6e28614a-2f0c-4ace-9a2d-c0d4c80363b4" />
