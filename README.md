@@ -2154,3 +2154,217 @@ VPC + private subnets → Provide security and isolation.
 Multiple AZs → Ensure uptime even if one zone fails.
 
 <img width="758" height="365" alt="image" src="https://github.com/user-attachments/assets/6e28614a-2f0c-4ace-9a2d-c0d4c80363b4" />
+
+amazon eks nonde types 
+managed node groups
+creates and manages nodes 9EC2 instance for you
+nondes are apart of an ASG managed by EKS
+supports on demand oir spot instances 
+
+self managed nondes 
+nodes created by you and register to thee EKS cluster and manged by ASG 
+you can use prebuilt AMI amazon EKS optomised AMI
+support on demand or spot instances
+
+AWS fargate 
+no mantinence requirewd no nones managed its serrverless all you need to do is define cpu and memory requirments for containers 
+
+##Serverless
+Serverless overvbiew 
+serverless is when develiops dont have to manage servers anymore 
+they just deploy code 
+they deploy functions 
+serverless is a FAAS fdunction as a service 
+serverless was pioneered by AWS lambda but noe includes anyhhingthing that managed 
+serverless does not mean rhere are no serevers
+it means you dont manage provision or see them 
+
+serverles in aws 
+lambda us the core of servereless offerings
+you just write your functions deploy the lambda function and it does the job 
+dynamoDB - fully managed serverless nosql data basethats scales automaticlly
+cognito - shelps manage user authentication easier to handle logins and signups on applications
+api gateway - acts like a bridge between users and ;ambas functions you can create and monitor apis which interact with yout back end services
+S3 - serveress offering for storing files and conetent
+SNS & SQS SNS handles nototficatrionsd SQS queues messaging between services they are messaging systems 
+Kineses data fire hose - used to lower streaming data in tghe AWS dfor analysis and storage 
+AUror serverless - fully managed serverless data basew theat auto scales on demand
+step functions - step functions helps you manage multiple lambda functions 
+fargate - serverless compute option AWS handles your ec2 instances 
+
+<img width="226" height="270" alt="image" src="https://github.com/user-attachments/assets/dc42629a-d581-4636-9d46-86a51f346076" />
+
+why aws lambda 
+Why Use AWS Lambda?
+🔹 EC2 (Elastic Compute Cloud)
+
+Virtual servers (VMs) in the cloud.
+
+You choose CPU & memory for each instance.
+
+Always running → you pay even when idle.
+
+Scaling requires manual setup (or auto scaling configs).
+
+Good for long-running applications or when you need full control.
+
+🔹 Lambda (Serverless Functions)
+
+No servers to manage → AWS handles it.
+
+Runs on-demand, only when triggered.
+
+Billed only for execution time (no idle cost).
+
+Execution limit → max 15 minutes per function.
+
+Best for short, event-driven tasks (e.g., S3 upload trigger, API call, stream processing).
+
+Automatic scaling → handles 1 to 1M+ requests seamlessly.
+
+✅ Summary
+
+EC2 = Full control, but you manage servers, scaling, and costs (can pay for idle).
+
+Lambda = Serverless, auto-scaling, cost-efficient, but limited to short-lived, event-driven workloads.
+
+
+benefits of lambda 
+easy pricing - pay fopr what you use
+free tier gve 1000000 requests and 4000000Gb of compoute time
+intigrated wuth the whole aws suite of services
+integrated with many programming manguages 
+easy monitoringh through cloudwatch
+easy to get more resources per functions
+increasing ram will improves CPU and network
+
+🔹 Built-in Supported Languages
+
+Node.js (JavaScript) → great for event-driven apps.
+
+Python → widely used for data processing, automation, serverless web apps.
+
+Java → popular for enterprise-level apps.
+
+C#, .NET Core, PowerShell → strong fit for Microsoft developer background.
+
+Ruby → good for scalable web apps (e.g., with Rails).
+
+🔹 Custom Runtimes
+
+Use the Lambda Runtime API to bring your own language.
+
+Example: Go (Golang) and other non-officially supported languages.
+
+Lets you choose a language that fits your project best.
+
+🔹 Lambda Container Images
+
+Package your app into a Docker container image.
+
+Ideal for:
+
+Complex app setups.
+
+Custom dependencies.
+
+More control over runtime environment.
+
+Requirement: container must implement Lambda Runtime API.
+
+👉 If you want full flexibility with Docker containers (beyond Lambda limits), use ECS Fargate instead.
+
+✅ Summary
+
+AWS Lambda supports multiple languages out-of-the-box, plus custom runtimes and container images for flexibility. This means you can run serverless functions in the language and environment you’re most comfortable with.
+
+example of serveerlsss
+Example: Serverless Thumbnail Creation
+🔹 Flow of Events
+
+Upload Image to S3
+
+User uploads an image (e.g., beach photo) to an S3 bucket.
+
+This is the starting point.
+
+Trigger Event
+
+The S3 upload event automatically triggers a Lambda function.
+
+No manual step → fully event-driven.
+
+Lambda Function Executes
+
+Lambda takes the uploaded image.
+
+Generates a smaller thumbnail version.
+
+Push to S3
+
+The new thumbnail is stored back into S3 (often in a different bucket/folder).
+
+Now you have both the full-size image + the thumbnail.
+
+Store Metadata in DynamoDB
+
+Lambda also records details about the image (name, size, timestamp, etc.).
+
+Stored in DynamoDB for easy querying later.
+
+🔹 Why This Is Cool
+
+Fully Automated → just upload the image, everything else happens automatically.
+
+Serverless → no servers to manage, AWS handles scaling.
+
+Cost-Efficient → pay only when Lambda runs + storage costs.
+
+Scalable → works whether 1 image or 1 million images are uploaded.
+
+<img width="510" height="284" alt="image" src="https://github.com/user-attachments/assets/d7c0fb02-609e-4b75-87cf-e59f7034d32c" />
+
+Example: Scheduled Task with EventBridge + Lambda
+🔹 Flow
+
+EventBridge (CloudWatch Events)
+
+Acts like a scheduler/cron job.
+
+Example: trigger every 1 hour.
+
+Can be set to run at specific times/dates using cron expressions.
+
+Lambda Function
+
+Triggered automatically by EventBridge.
+
+Runs your code only when scheduled.
+
+Can perform tasks like:
+
+Backups
+
+Cleanup jobs
+
+Generating reports
+
+Interacting with other AWS services (e.g., S3, DynamoDB, EC2).
+
+🔹 Why This Is Useful
+
+Event-driven → runs only when triggered.
+
+No servers → no need for a VM running 24/7.
+
+Cost-effective → you only pay when Lambda runs.
+
+Flexible scheduling → run every minute, hour, day, or custom cron timing.
+
+✅ Summary:
+EventBridge = scheduler
+Lambda = worker
+Together → fully managed, cost-efficient way to automate recurring tasks in AWS.
+
+
+<img width="407" height="255" alt="image" src="https://github.com/user-attachments/assets/47c98910-dc61-43ab-98e7-e7fab861abe4" />
