@@ -1607,6 +1607,263 @@ Anticipate a scaling based on known usage patterns.
 
 Example: increase the min capacity to 10 at 5pm on Fridays.
 
+## containers
+Docker recap 
+Docker = a platform to build, ship, and run apps in a consistent way.
+
+Packages everything your app needs (code, libraries, dependencies, runtime) into a container.
+
+Runs the same everywhere: laptop, server, or cloud.
+
+What is a Container?
+
+A lightweight, portable box holding:
+
+App code
+
+Libraries & dependencies
+
+Runtime environment
+
+Ensures the app behaves the same across all systems.
+
+Solves the classic “works on my machine” problem.
+
+Why Use Docker?
+
+Portability – works on any system with Docker installed.
+
+Consistency – same behavior in dev, staging, production.
+
+Speed – starts fast, uses fewer resources than VMs.
+
+Simplicity – everything bundled and easy to ship/deploy.
+
+How Docker Works
+
+Container Image = blueprint of the app (code + dependencies).
+
+Container = running instance of that image.
+
+Works across:
+
+Local servers
+
+Cloud environments
+
+Other machines
+
+Docker on an opperating system 
+1. Server (the big box)
+
+Could be an EC2 instance, local machine, or any host.
+
+Runs the Docker Engine (container runtime).
+
+2. Containers (the smaller boxes inside)
+
+Each container runs one application with its own dependencies.
+
+Examples shown in the diagram:
+
+Java apps (multiple versions or instances)
+
+Nginx web server
+
+MySQL database
+
+3. Key Points from the Diagram
+
+Isolation: Each app is in its own container, no interference between Java, Nginx, or MySQL.
+
+Shared host resources: All containers use the same host OS kernel, CPU, memory, and networking.
+
+Multiple instances: You can run multiple versions of the same app (e.g., 3 Java containers) without conflicts.
+
+Lightweight: Unlike VMs, containers don’t need their own OS — they share the host’s OS kernel.
+<img width="474" height="343" alt="image" src="https://github.com/user-attachments/assets/9a3c67c3-54b5-4ff7-a3fe-2a2d01a97708" />
+
+whewre are docker images stored 
+Docker Images Recap
+
+Docker Image = a blueprint for your app.
+
+Contains code, libraries, dependencies, configs.
+
+Once built → can run as a container.
+
+Where Are Images Stored? → Repositories
+
+A repository = folder for Docker images.
+
+Can be public or private.
+
+1. Docker Hub
+
+Largest public repo for Docker images.
+
+Like GitHub for Docker images.
+
+Hosts base images (Ubuntu, Nginx, MySQL, etc.).
+
+Anyone can push or pull images.
+
+2. Amazon ECR (Elastic Container Registry)
+
+AWS-managed repository.
+
+Designed for AWS users.
+
+Stores images securely (private by default).
+
+Can also publish images publicly via ECR Public Gallery.
+
+Integrates with other AWS services (ECS, EKS, etc.).
+
+Public vs. Private Repositories
+
+Public repos (e.g., Docker Hub, ECR Public):
+
+Anyone can access/download images.
+
+Good for sharing or using common base images.
+
+Private repos (e.g., ECR Private):
+
+Restricted access (only authorized users).
+
+Used by organizations to control security & access.
+
+👉 Summary:
+
+Build image → store in a repo (public or private).
+
+Docker Hub = biggest public repo.
+
+Amazon ECR = secure, AWS-focused repo with private + public options.
+
+docker vs virtual machines 
+Virtual Machines (VMs)
+
+What they are: Full virtual systems that mimic physical hardware.
+
+Components:
+
+Each VM has its own guest OS (Ubuntu, Windows, etc.).
+
+Managed by a hypervisor (e.g., VMware, Hyper-V).
+
+Resources: Each VM gets its own chunk of CPU, RAM, storage.
+
+Downsides:
+
+Heavy → each VM carries a full OS.
+
+Slow boot times.
+
+High resource usage.
+
+Containers (Docker)
+
+What they are: Lightweight, OS-level virtualization.
+
+Components:
+
+Share the host OS kernel.
+
+Managed by the Docker daemon (lighter than a hypervisor).
+
+Resources: Multiple containers run side-by-side, each with its own app + dependencies.
+
+Benefits:
+
+Fast start/stop times.
+
+Lightweight → no extra OS per container.
+
+Portable → run anywhere Docker is installed.
+
+Efficient → run many more containers per server compared to VMs.
+
+Key Difference
+
+VMs → Virtualize hardware (each has its own OS).
+
+Containers → Virtualize the OS (apps isolated but share same kernel).
+<img width="500" height="223" alt="image" src="https://github.com/user-attachments/assets/ea0cf5c9-198c-4e0a-9d4e-372920ea8278" />
+
+getting styaryed with docker 
+1. Dockerfile → The Recipe
+
+Defines how to build your Docker image.
+
+Common instructions:
+
+FROM → base image (e.g., ubuntu:18.04).
+
+COPY → copy app files into the image.
+
+RUN → run commands during build (install deps, compile).
+
+CMD → default command when container starts (e.g., run Python script).
+
+2. Build the Image
+
+Command:
+
+docker build -t myapp .
+
+
+This takes the Dockerfile → produces an image.
+
+Image = blueprint you can reuse to start containers.
+
+3. Run the Container
+
+Command:
+
+docker run myapp
+
+
+This creates a container = running instance of your image.
+
+Example: container running a Python application.
+
+4. Push & Pull Images
+
+Push images to a registry (cloud storage for images).
+
+Docker Hub (public repo).
+
+Amazon ECR (private/public repo for AWS).
+
+Pull them later to use anywhere (local, servers, cloud).
+
+🔑 Summary Flow
+
+Dockerfile (blueprint) → Build (Image) → Run (Container) → Push/Pull (Registry like Docker Hub / ECR)
+
+<img width="502" height="251" alt="image" src="https://github.com/user-attachments/assets/e489e36c-2ded-4964-9b8a-4b581ae3862b" />
+
+
+conatiner related services 
+Amazon elastic container service ECS
+amazons own platform
+fully managed service that a\llows you to run docker containers without having to install and manage orchastration software
+you can define conatiner number, images to use, how they should interact througha  simple interface 
+
+elastic kubermetes service amazon EKS
+amazon managed kubernetes 
+with EKS you can take advantage 
+
+
+
+
+
+
+
+
+
 
 
 
