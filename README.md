@@ -2549,3 +2549,18 @@ Public IPs = Routable on the internet, used by websites & servers.
 Loopback (127.0.0.1) = Your own machine, for local testing.
 
 NAT lets private IP devices share one public IP to connect online.
+
+default vpc 
+Default VPC (what you get automatically)
+
+Comes with your AWS account (1 per region).
+
+Already has internet access via an Internet Gateway.
+
+Has 1 public subnet per AZ.
+
+EC2s launched here get a public + private IPv4 by default.
+
+EC2s also get DNS names (public + private).
+
+Includes a default security group + route table.
