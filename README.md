@@ -2368,3 +2368,184 @@ Together → fully managed, cost-efficient way to automate recurring tasks in AW
 
 
 <img width="407" height="255" alt="image" src="https://github.com/user-attachments/assets/47c98910-dc61-43ab-98e7-e7fab861abe4" />
+
+
+##Amazon Netwirking 
+Understanding CIDR - IPv4
+classless inter domain routing 
+CIDR is a method for allocating IP[ addresses 
+CIDR help us define IP ranges 
+if an IP address  has XX.XX.XX.XX/(ANYMUMBER) - 1 IP
+if an ip is 0.0.0.0/0 is is public 
+
+CIDR consists of two components 
+BASE IP
+represents an Ip congaienr range 
+ecxample 10.0.0.0,192168.0.0
+Subnet mask
+Defioes how many bits and IP can chnage 
+exampple /0/24/32
+can take 2 forms 
+/8  ó  255.0.0.0
+/16 ó  255.255.0.0
+/24 ó  255.255.255.0
+/32 ó  255.255.255.255
+
+visual break down 
+Here’s a visual breakdown of CIDR:
+
+Blue = network bits (fixed, define the subnet)
+
+Gray = host bits (variable, used for devices inside the subnet)
+
+/8 → Huge network, many hosts (16M+)
+
+/16 → Medium network (65K hosts)
+
+/24 → Small network (254 hosts, common in LANs)
+
+/32 → Single device (no host bits left)
+
+This way, you can literally see how the prefix length (/X) shrinks the host space and increases network specificity.
+<img width="1979" height="1180" alt="output" src="https://github.com/user-attachments/assets/bbbeccd5-da9d-4a88-9e51-54a213992221" />
+
+Understanding CIDR - subnet mask 
+A subnet mask (or CIDR slash notation) defines how many IP addresses exist in a subnet.
+
+/32 → Only 1 IP (usually assigned to a single host).
+
+/31 → 2 IPs
+
+/30 → 4 IPs
+
+/29 → 8 IPs
+
+/28 → 16 IPs
+
+/27 → 32 IPs
+
+/26 → 64 IPs
+
+/25 → 128 IPs
+
+/24 → 256 IPs
+
+/16 → 65,536 IPs
+
+/0 → Covers all IPs (entire IPv4 space)
+
+👉 Notice how each step doubles the number of available IPs. That’s because each time you reduce the subnet mask (make it less restrictive), you free up one more host bit, which doubles the possible addresses.
+
+🔹 Octet Relationship (from the image)
+
+Think of an IP address as 4 octets (192.168.0.0 for example).
+
+/32 → No octet can change → one IP
+
+/24 → Last octet can change (0–255) → 256 IPs
+
+/16 → Last two octets can change (0–255.0–255) → 65,536 IPs
+
+/8 → Last three octets can change → 16.7 million IPs
+
+/0 → All octets can change → every IPv4 address
+
+🔹 Example Walkthrough
+
+Let’s take 192.168.0.0/30:
+
+Subnet mask: 255.255.255.252
+
+Binary: 11111111.11111111.11111111.11111100
+
+Host bits: 2 (the last two zeroes)
+
+Total IPs = 2² = 4
+
+That gives you:
+
+192.168.0.0 → Network address  
+192.168.0.1 → Usable host  
+192.168.0.2 → Usable host  
+192.168.0.3 → Broadcast address
+
+
+So /30 means 2 usable IPs for devices.
+
+🔹 Why This Matters (AWS & VPC Example)
+
+In AWS, when you create a VPC (Virtual Private Cloud) or subnets, you must plan how many IPs you’ll need:
+
+/16 → Large network, ~65K IPs (used for VPC range).
+
+/24 → Smaller subnet, 256 IPs (commonly used for private or public subnets).
+
+This way, you don’t run out of addresses, and you don’t waste too many.
+
+✅ Summary:
+
+Subnet masks tell you how many IPs are in a range.
+
+The number of IPs doubles each time you increase host bits by 1.
+
+CIDR /X → smaller number means more hosts, larger number means more specific, fewer hosts.
+
+AWS typically uses /16 (for VPCs) and /24 (for subnets).
+<img width="780" height="264" alt="image" src="https://github.com/user-attachments/assets/bc6023a1-715e-4af6-b137-74334891b7a4" />
+
+public vs private IPV4 
+1. Private IPv4 Addresses
+
+The IANA (Internet Assigned Numbers Authority) reserved specific IP ranges for private use only. These addresses are not routable on the public internet — they are meant for local networks (like your home Wi-Fi, office LAN, or cloud VPC).
+
+The reserved private ranges are:
+
+10.0.0.0 → 10.255.255.255 (10/8 range)
+
+172.16.0.0 → 172.31.255.255 (172.16/12 range)
+
+192.168.0.0 → 192.168.255.255 (192.168/16 range)
+
+👉 Example:
+
+Your home router might give your laptop an IP like 192.168.1.10.
+
+That IP works inside your house, but no one on the internet can reach it directly.
+
+Special note:
+
+127.0.0.1 = Loopback address → used to test networking on your own computer (“localhost”).
+
+🔹 2. Public IPv4 Addresses
+
+Any IPv4 address outside those private ranges is a public IP.
+
+These can be accessed from anywhere on the internet (as long as firewalls or ISPs don’t block them).
+
+Websites, servers, and cloud services usually use public IPs so users around the world can connect.
+
+👉 Example:
+
+Google DNS: 8.8.8.8 → Public
+
+A website’s server might be 203.0.113.25 → Public
+
+🔹 3. How They Work Together
+
+Your home devices use private IPs (e.g., 192.168.1.20).
+
+Your router has a public IP assigned by your ISP (e.g., 81.2.69.142).
+
+NAT (Network Address Translation) maps your private IPs → public IP, so you can browse the internet.
+
+Without NAT and private IP ranges, we would’ve run out of IPv4 addresses decades ago.
+
+✅ Summary:
+
+Private IPs = Local networks only (10.x.x.x, 172.16–31.x.x, 192.168.x.x).
+
+Public IPs = Routable on the internet, used by websites & servers.
+
+Loopback (127.0.0.1) = Your own machine, for local testing.
+
+NAT lets private IP devices share one public IP to connect online.
