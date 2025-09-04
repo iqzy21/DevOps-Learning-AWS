@@ -1608,83 +1608,77 @@ Anticipate a scaling based on known usage patterns.
 Example: increase the min capacity to 10 at 5pm on Fridays.
 
 ## containers
-Docker recap 
-Docker = a platform to build, ship, and run apps in a consistent way.
+# AWS Containers, Serverless & Networking Guide
+
+## Table of Contents
+- [Containers](#containers)
+- [Serverless](#serverless)
+- [Amazon Networking](#amazon-networking)
+
+---
+
+## Containers
+
+### Docker Recap
+
+**Docker** = a platform to build, ship, and run apps in a consistent way.
 
 Packages everything your app needs (code, libraries, dependencies, runtime) into a container.
 
 Runs the same everywhere: laptop, server, or cloud.
 
-What is a Container?
+### What is a Container?
 
 A lightweight, portable box holding:
-
-App code
-
-Libraries & dependencies
-
-Runtime environment
+- App code
+- Libraries & dependencies
+- Runtime environment
 
 Ensures the app behaves the same across all systems.
 
-Solves the classic “works on my machine” problem.
+Solves the classic "works on my machine" problem.
 
-Why Use Docker?
+### Why Use Docker?
 
-Portability – works on any system with Docker installed.
+- **Portability** – works on any system with Docker installed
+- **Consistency** – same behavior in dev, staging, production
+- **Speed** – starts fast, uses fewer resources than VMs
+- **Simplicity** – everything bundled and easy to ship/deploy
 
-Consistency – same behavior in dev, staging, production.
+### How Docker Works
 
-Speed – starts fast, uses fewer resources than VMs.
-
-Simplicity – everything bundled and easy to ship/deploy.
-
-How Docker Works
-
-Container Image = blueprint of the app (code + dependencies).
-
-Container = running instance of that image.
+- **Container Image** = blueprint of the app (code + dependencies)
+- **Container** = running instance of that image
 
 Works across:
+- Local servers
+- Cloud environments
+- Other machines
 
-Local servers
+### Docker on an Operating System
 
-Cloud environments
+![Docker Architecture](https://github.com/user-attachments/assets/9a3c67c3-54b5-4ff7-a3fe-2a2d01a97708)
 
-Other machines
+1. **Server (the big box)**
+   - Could be an EC2 instance, local machine, or any host
+   - Runs the Docker Engine (container runtime)
 
-Docker on an opperating system 
-1. Server (the big box)
+2. **Containers (the smaller boxes inside)**
+   - Each container runs one application with its own dependencies
+   - Examples shown in the diagram:
+     - Java apps (multiple versions or instances)
+     - Nginx web server
+     - MySQL database
 
-Could be an EC2 instance, local machine, or any host.
+3. **Key Points from the Diagram**
+   - **Isolation**: Each app is in its own container, no interference between Java, Nginx, or MySQL
+   - **Shared host resources**: All containers use the same host OS kernel, CPU, memory, and networking
+   - **Multiple instances**: You can run multiple versions of the same app (e.g., 3 Java containers) without conflicts
+   - **Lightweight**: Unlike VMs, containers don't need their own OS — they share the host's OS kernel
 
-Runs the Docker Engine (container runtime).
+### Where Are Docker Images Stored
 
-2. Containers (the smaller boxes inside)
-
-Each container runs one application with its own dependencies.
-
-Examples shown in the diagram:
-
-Java apps (multiple versions or instances)
-
-Nginx web server
-
-MySQL database
-
-3. Key Points from the Diagram
-
-Isolation: Each app is in its own container, no interference between Java, Nginx, or MySQL.
-
-Shared host resources: All containers use the same host OS kernel, CPU, memory, and networking.
-
-Multiple instances: You can run multiple versions of the same app (e.g., 3 Java containers) without conflicts.
-
-Lightweight: Unlike VMs, containers don’t need their own OS — they share the host’s OS kernel.
-<img width="474" height="343" alt="image" src="https://github.com/user-attachments/assets/9a3c67c3-54b5-4ff7-a3fe-2a2d01a97708" />
-
-whewre are docker images stored 
-Docker Images Recap
+**Docker Images Recap**
 
 Docker Image = a blueprint for your app.
 
@@ -1692,273 +1686,236 @@ Contains code, libraries, dependencies, configs.
 
 Once built → can run as a container.
 
-Where Are Images Stored? → Repositories
+#### Where Are Images Stored? → Repositories
 
 A repository = folder for Docker images.
 
 Can be public or private.
 
-1. Docker Hub
+#### 1. Docker Hub
+- Largest public repo for Docker images
+- Like GitHub for Docker images
+- Hosts base images (Ubuntu, Nginx, MySQL, etc.)
+- Anyone can push or pull images
 
-Largest public repo for Docker images.
+#### 2. Amazon ECR (Elastic Container Registry)
+- AWS-managed repository
+- Designed for AWS users
+- Stores images securely (private by default)
+- Can also publish images publicly via ECR Public Gallery
+- Integrates with other AWS services (ECS, EKS, etc.)
 
-Like GitHub for Docker images.
+#### Public vs. Private Repositories
 
-Hosts base images (Ubuntu, Nginx, MySQL, etc.).
+**Public repos** (e.g., Docker Hub, ECR Public):
+- Anyone can access/download images
+- Good for sharing or using common base images
 
-Anyone can push or pull images.
+**Private repos** (e.g., ECR Private):
+- Restricted access (only authorized users)
+- Used by organizations to control security & access
 
-2. Amazon ECR (Elastic Container Registry)
-
-AWS-managed repository.
-
-Designed for AWS users.
-
-Stores images securely (private by default).
-
-Can also publish images publicly via ECR Public Gallery.
-
-Integrates with other AWS services (ECS, EKS, etc.).
-
-Public vs. Private Repositories
-
-Public repos (e.g., Docker Hub, ECR Public):
-
-Anyone can access/download images.
-
-Good for sharing or using common base images.
-
-Private repos (e.g., ECR Private):
-
-Restricted access (only authorized users).
-
-Used by organizations to control security & access.
-
-👉 Summary:
-
+**Summary:**
 Build image → store in a repo (public or private).
+- Docker Hub = biggest public repo
+- Amazon ECR = secure, AWS-focused repo with private + public options
 
-Docker Hub = biggest public repo.
+### Docker vs Virtual Machines
 
-Amazon ECR = secure, AWS-focused repo with private + public options.
+![Docker vs VMs](https://github.com/user-attachments/assets/ea0cf5c9-198c-4e0a-9d4e-372920ea8278)
 
-docker vs virtual machines 
-Virtual Machines (VMs)
+#### Virtual Machines (VMs)
 
-What they are: Full virtual systems that mimic physical hardware.
+**What they are**: Full virtual systems that mimic physical hardware.
 
-Components:
+**Components:**
+- Each VM has its own guest OS (Ubuntu, Windows, etc.)
+- Managed by a hypervisor (e.g., VMware, Hyper-V)
+- Resources: Each VM gets its own chunk of CPU, RAM, storage
 
-Each VM has its own guest OS (Ubuntu, Windows, etc.).
+**Downsides:**
+- Heavy → each VM carries a full OS
+- Slow boot times
+- High resource usage
 
-Managed by a hypervisor (e.g., VMware, Hyper-V).
+#### Containers (Docker)
 
-Resources: Each VM gets its own chunk of CPU, RAM, storage.
+**What they are**: Lightweight, OS-level virtualization.
 
-Downsides:
+**Components:**
+- Share the host OS kernel
+- Managed by the Docker daemon (lighter than a hypervisor)
+- Resources: Multiple containers run side-by-side, each with its own app + dependencies
 
-Heavy → each VM carries a full OS.
+**Benefits:**
+- Fast start/stop times
+- Lightweight → no extra OS per container
+- Portable → run anywhere Docker is installed
+- Efficient → run many more containers per server compared to VMs
 
-Slow boot times.
+#### Key Difference
 
-High resource usage.
+- **VMs** → Virtualize hardware (each has its own OS)
+- **Containers** → Virtualize the OS (apps isolated but share same kernel)
 
-Containers (Docker)
+### Getting Started with Docker
 
-What they are: Lightweight, OS-level virtualization.
+![Docker Workflow](https://github.com/user-attachments/assets/e489e36c-2ded-4964-9b8a-4b581ae3862b)
 
-Components:
-
-Share the host OS kernel.
-
-Managed by the Docker daemon (lighter than a hypervisor).
-
-Resources: Multiple containers run side-by-side, each with its own app + dependencies.
-
-Benefits:
-
-Fast start/stop times.
-
-Lightweight → no extra OS per container.
-
-Portable → run anywhere Docker is installed.
-
-Efficient → run many more containers per server compared to VMs.
-
-Key Difference
-
-VMs → Virtualize hardware (each has its own OS).
-
-Containers → Virtualize the OS (apps isolated but share same kernel).
-<img width="500" height="223" alt="image" src="https://github.com/user-attachments/assets/ea0cf5c9-198c-4e0a-9d4e-372920ea8278" />
-
-getting styaryed with docker 
-1. Dockerfile → The Recipe
+#### 1. Dockerfile → The Recipe
 
 Defines how to build your Docker image.
 
-Common instructions:
+**Common instructions:**
+- `FROM` → base image (e.g., ubuntu:18.04)
+- `COPY` → copy app files into the image
+- `RUN` → run commands during build (install deps, compile)
+- `CMD` → default command when container starts (e.g., run Python script)
 
-FROM → base image (e.g., ubuntu:18.04).
+#### 2. Build the Image
 
-COPY → copy app files into the image.
-
-RUN → run commands during build (install deps, compile).
-
-CMD → default command when container starts (e.g., run Python script).
-
-2. Build the Image
-
-Command:
-
+**Command:**
+```bash
 docker build -t myapp .
-
+```
 
 This takes the Dockerfile → produces an image.
 
 Image = blueprint you can reuse to start containers.
 
-3. Run the Container
+#### 3. Run the Container
 
-Command:
-
+**Command:**
+```bash
 docker run myapp
-
+```
 
 This creates a container = running instance of your image.
 
 Example: container running a Python application.
 
-4. Push & Pull Images
+#### 4. Push & Pull Images
 
 Push images to a registry (cloud storage for images).
-
-Docker Hub (public repo).
-
-Amazon ECR (private/public repo for AWS).
+- Docker Hub (public repo)
+- Amazon ECR (private/public repo for AWS)
 
 Pull them later to use anywhere (local, servers, cloud).
 
-🔑 Summary Flow
-
+**Summary Flow:**
 Dockerfile (blueprint) → Build (Image) → Run (Container) → Push/Pull (Registry like Docker Hub / ECR)
 
-<img width="502" height="251" alt="image" src="https://github.com/user-attachments/assets/e489e36c-2ded-4964-9b8a-4b581ae3862b" />
+### Container Related Services
 
+#### Amazon Elastic Container Service (ECS)
+- Amazon's own platform
+- Fully managed service that allows you to run docker containers without having to install and manage orchestration software
+- You can define container number, images to use, how they should interact through a simple interface
 
-conatiner related services 
-Amazon elastic container service ECS
-amazons own platform
-fully managed service that a\llows you to run docker containers without having to install and manage orchastration software
-you can define conatiner number, images to use, how they should interact througha  simple interface 
+#### Elastic Kubernetes Service Amazon (EKS)
+- Amazon managed kubernetes
+- With EKS you can take advantage
 
-elastic kubermetes service amazon EKS
-amazon managed kubernetes 
-with EKS you can take advantage 
+#### AWS Fargate
+- Amazon own serverless container platform
+- Works with ECS and EKS
 
-aws fargate amazon own serverless containe rplatfoprm
-works with ecs and eks
+#### Amazon ECR
+- Stores container images
 
-amazon ecr 
-stiores container images 
+### Amazon ECS - EC2 Launch Type
 
-amazon ECS - EC2 launch type
-ECS elastic container services 
-launch docker container on aws = lauch ecs tasks on ecs clusters
-ec2 launch type: you must provision abd nmain tain the infrastructure (the ec2 instances)
-Each ec2 instance must trun the ECS agent to register in the ecs cluster
-AWS takes care if starting/stopping containers 
-<img width="322" height="316" alt="image" src="https://github.com/user-attachments/assets/8c66c9fd-d269-4055-a723-8119c881b928" />
+![ECS EC2 Launch Type](https://github.com/user-attachments/assets/8c66c9fd-d269-4055-a723-8119c881b928)
 
-amazon ecs fargate launch type
+ECS (Elastic Container Service)
+
+Launch docker container on AWS = launch ECS tasks on ECS clusters
+
+**EC2 launch type**: you must provision and maintain the infrastructure (the EC2 instances)
+- Each EC2 instance must run the ECS agent to register in the ECS cluster
+- AWS takes care of starting/stopping containers
+
+### Amazon ECS Fargate Launch Type
+
 Launch docker containers on AWS
-you do not provision the infrastructure no ec2 instances to manage 
-its all serverless
-yopu just create task defenitions
-AWS just runs ECS tasks for you based on the CPU / RAM you need 
-To clase, just increassee the number of tasks simple- no more ec2 instance tasks 
 
-amazon ecs IAM roles for ECS
-Used by tge ECS agent 
-makes API xcales to ECS servuce 
-Send container logs to cloudwatch logs 
-Pull dcker imaghe from ECR
-Reference sensitive data in secreyts 
-manager ort SSM poarameter store 
+You do not provision the infrastructure no EC2 instances to manage
 
-ecs TASK ROLE
-ALLOWS EACH TASK TO HAVE A SP[ECIFIC ROLE
-USE DIFFERENT ROLES FOR TTHR DIFFERENT ecs SERVBICES YOU RIN 
-tASK ROLE IS DEFINED IN THE TASK DEFENITION 
+It's all serverless
 
-<img width="353" height="367" alt="image" src="https://github.com/user-attachments/assets/0369381e-3e64-49b4-9583-a8aa8fcd28cb" />
+You just create task definitions
 
-amazon ECS load balancer intigration 
-Application load balancer supported and works for most use cases the go to choice as it operates at layer 7
-worksz with https/http 
-supports path based routing 
+AWS just runs ECS tasks for you based on the CPU / RAM you need
 
-NLB reccomended for high performamve or to pair with AWS provate link ddoesnt have advance feature
+To scale, just increase the number of tasks simple- no more EC2 instance tasks
 
-CLB supported not recommended used for lgacy systems 
-<img width="330" height="364" alt="image" src="https://github.com/user-attachments/assets/f65a601f-6bea-4056-8bd3-5babbdb76ee4" />
+### Amazon ECS IAM Roles for ECS
 
-ECS service autoi scalling
-🔹 What is ECS Service Auto Scaling?
+![ECS IAM Roles](https://github.com/user-attachments/assets/0369381e-3e64-49b4-9583-a8aa8fcd28cb)
+
+Used by the ECS agent:
+- Makes API calls to ECS service
+- Send container logs to cloudwatch logs
+- Pull docker image from ECR
+- Reference sensitive data in secrets manager or SSM parameter store
+
+**ECS TASK ROLE**
+- ALLOWS EACH TASK TO HAVE A SPECIFIC ROLE
+- USE DIFFERENT ROLES FOR THE DIFFERENT ECS SERVICES YOU RUN
+- TASK ROLE IS DEFINED IN THE TASK DEFINITION
+
+### Amazon ECS Load Balancer Integration
+
+![ECS Load Balancer](https://github.com/user-attachments/assets/f65a601f-6bea-4056-8bd3-5babbdb76ee4)
+
+**Application Load Balancer** supported and works for most use cases the go to choice as it operates at layer 7
+- Works with https/http
+- Supports path based routing
+
+**NLB** recommended for high performance or to pair with AWS private link doesn't have advance feature
+
+**CLB** supported not recommended used for legacy systems
+
+### ECS Service Auto Scaling
+
+#### What is ECS Service Auto Scaling?
 
 Automatically adjusts the number of ECS tasks running based on demand.
+- Scales up when traffic/CPU goes up
+- Scales down when things calm down → saves money
+- Uses AWS Application Auto Scaling under the hood
 
-Scales up when traffic/CPU goes up.
+#### Metrics Used for Scaling
 
-Scales down when things calm down → saves money.
+- CPU utilization
+- Memory utilization
+- ALB (Application Load Balancer) request count per target
+- Other custom CloudWatch metrics
 
-Uses AWS Application Auto Scaling under the hood.
+#### Scaling Strategies
 
-🔹 Metrics Used for Scaling
+**Target Tracking (simple & dynamic)**
+- Set a target (e.g., keep CPU at 40%)
+- AWS automatically adjusts tasks to maintain that target
+- Easiest to use
 
-CPU utilization
+**Step Scaling (fine-grained control)**
+- Define thresholds and actions:
+  - If CPU > 70% → add 2 tasks
+  - If CPU < 30% → remove 1 task
+- More manual but gives full control
 
-Memory utilization
+**Scheduled Scaling (predictable traffic)**
+- Pre-plan scaling events
+- Example: If traffic spikes every Tuesday 5 PM → scale up before, scale down after
 
-ALB (Application Load Balancer) request count per target
+#### ECS with Fargate
 
-Other custom CloudWatch metrics
+- No need to manage EC2 instances
+- You only define how many tasks you want
+- AWS manages infrastructure scaling for you
 
-🔹 Scaling Strategies
-
-Target Tracking (simple & dynamic)
-
-Set a target (e.g., keep CPU at 40%).
-
-AWS automatically adjusts tasks to maintain that target.
-
-Easiest to use.
-
-Step Scaling (fine-grained control)
-
-Define thresholds and actions:
-
-If CPU > 70% → add 2 tasks.
-
-If CPU < 30% → remove 1 task.
-
-More manual but gives full control.
-
-Scheduled Scaling (predictable traffic)
-
-Pre-plan scaling events.
-
-Example: If traffic spikes every Tuesday 5 PM → scale up before, scale down after.
-
-🔹 ECS with Fargate
-
-No need to manage EC2 instances.
-
-You only define how many tasks you want.
-
-AWS manages infrastructure scaling for you.
-
-✅ Summary
+**Summary**
 
 ECS auto scaling = handles spikes, saves costs.
 
@@ -1966,845 +1923,708 @@ Options: Target Tracking (simple), Step Scaling (precise), Scheduled Scaling (pr
 
 Even easier with Fargate since AWS manages the servers.
 
-amazon ECR 
-What is ECR?
+### Amazon ECR
 
-Cloud storage system for Docker images.
+![Amazon ECR](https://github.com/user-attachments/assets/83b4f707-f144-40be-b5b5-8b323ffa303e)
 
-Works like a container image hub (similar to Docker Hub but on AWS).
+#### What is ECR?
 
-Designed to integrate directly with ECS.
+- Cloud storage system for Docker images
+- Works like a container image hub (similar to Docker Hub but on AWS)
+- Designed to integrate directly with ECS
+- Stores images securely (backed by Amazon S3)
 
-Stores images securely (backed by Amazon S3).
+#### Types of Repositories
 
-🔹 Types of Repositories
+**Private Repositories**
+- Store internal/sensitive Docker images
+- Access controlled by IAM
 
-Private Repositories
+**Public Repositories**
+- For open-source or shared images
+- Amazon ECR Public Gallery provides free/public images
 
-Store internal/sensitive Docker images.
+#### ECS Integration
 
-Access controlled by IAM.
+- ECS tasks can pull images directly from ECR
+- Makes deployment smooth and automatic
 
-Public Repositories
+#### Security & Access
 
-For open-source or shared images.
+- Permissions controlled with IAM policies
+- Common issue: if pulling fails → check IAM permissions
 
-Amazon ECR Public Gallery provides free/public images.
+#### Extra Features
 
-🔹 ECS Integration
+- **Vulnerability Scanning** → scans images for security risks
+- **Versioning & Tagging** → manage multiple image versions (e.g., v1.0, latest)
+- **Lifecycle Management** → automatically deletes old images to save space
 
-ECS tasks can pull images directly from ECR.
-
-Makes deployment smooth and automatic.
-
-🔹 Security & Access
-
-Permissions controlled with IAM policies.
-
-Common issue: if pulling fails → check IAM permissions.
-
-🔹 Extra Features
-
-Vulnerability Scanning → scans images for security risks.
-
-Versioning & Tagging → manage multiple image versions (e.g., v1.0, latest).
-
-Lifecycle Management → automatically deletes old images to save space.
-
-✅ Summary:
+**Summary:**
 ECR = secure, scalable Docker image storage on AWS. Integrated with ECS, controlled by IAM, with extra features like scanning, versioning, and lifecycle cleanup.
-<img width="200" height="369" alt="image" src="https://github.com/user-attachments/assets/83b4f707-f144-40be-b5b5-8b323ffa303e" />
 
-Amazon EKS 
-What is EKS?
+### Amazon EKS
 
-Fully managed Kubernetes service on AWS.
+#### What is EKS?
 
-AWS manages the control plane (updates, patching, scaling).
+- Fully managed Kubernetes service on AWS
+- AWS manages the control plane (updates, patching, scaling)
+- You just focus on running apps, not cluster management
 
-You just focus on running apps, not cluster management.
+#### Why Kubernetes?
 
-🔹 Why Kubernetes?
+- Open-source container orchestration platform
+- Automates deployment, scaling, and management of containers
+- Helps run containers at scale
 
-Open-source container orchestration platform.
+#### EKS vs ECS
 
-Automates deployment, scaling, and management of containers.
+**ECS (Elastic Container Service)**
+- AWS-specific, simpler API
+- Deep integration with AWS services
 
-Helps run containers at scale.
+**EKS (Elastic Kubernetes Service)**
+- Based on Kubernetes (open-source, cloud agnostic)
+- Easier migration between AWS, GCP, Azure (AKS), or on-prem
+- Ideal if you already use Kubernetes elsewhere
 
-🔹 EKS vs ECS
+#### Launch Types in EKS
 
-ECS (Elastic Container Service)
+- **EC2 Launch Type** → You manage worker nodes (EC2), AWS manages control plane
+- **Fargate Launch Type** → Serverless, AWS runs the containers, no need to manage EC2
 
-AWS-specific, simpler API.
+#### Use Cases
 
-Deep integration with AWS services.
+- Migrating from on-prem or another cloud while keeping Kubernetes
+- Running workloads across multiple clouds (cloud agnostic)
+- Multi-region deployments → 1 EKS cluster per region
 
-EKS (Elastic Kubernetes Service)
+#### Monitoring & Insights
 
-Based on Kubernetes (open-source, cloud agnostic).
+- Integrated with CloudWatch Container Insights
+- Tracks logs, metrics, performance
+- Helps troubleshoot & optimize workloads
 
-Easier migration between AWS, GCP, Azure (AKS), or on-prem.
+### EKS Architecture
 
-Ideal if you already use Kubernetes elsewhere.
+![EKS Architecture](https://github.com/user-attachments/assets/6e28614a-2f0c-4ace-9a2d-c0d4c80363b4)
 
-🔹 Launch Types in EKS
+#### Core Components
 
-EC2 Launch Type → You manage worker nodes (EC2), AWS manages control plane.
+**EKS Worker Nodes**
+- The yellow boxes = EC2 instances running Kubernetes worker processes
+- These nodes actually run your pods (smallest unit in Kubernetes)
 
-Fargate Launch Type → Serverless, AWS runs the containers, no need to manage EC2.
+**Pods**
+- Groups of containers that perform specific tasks
+- Hosted inside the worker nodes
 
-🔹 Use Cases
+**Auto Scaling Group (ASG)**
+- Worker nodes are part of an ASG
+- Scales nodes up/down automatically based on load
 
-Migrating from on-prem or another cloud while keeping Kubernetes.
+#### Networking & Security (VPC setup)
 
-Running workloads across multiple clouds (cloud agnostic).
+**VPC (Virtual Private Cloud)**
+- Isolated private network where the entire EKS setup runs
+- Ensures secure communication between components
 
-Multi-region deployments → 1 EKS cluster per region.
+**AZs (Availability Zones)**
+- Multiple AZs used for high availability
+- If one AZ goes down, others keep the app running
 
-🔹 Monitoring & Insights
+**Private Subnets**
+- Worker nodes are deployed here for security
+- Not directly exposed to the public internet
 
-Integrated with CloudWatch Container Insights.
+**NAT Gateway**
+- One in each AZ
+- Lets worker nodes access the internet outbound (e.g., to pull Docker images, updates)
+- Prevents inbound public traffic from reaching nodes directly
 
-Tracks logs, metrics, performance.
+#### Traffic Management
 
-Helps troubleshoot & optimize workloads.
+**ELB (Elastic Load Balancer)**
+- Distributes incoming user traffic across nodes
+- Sends requests to healthy nodes only
+- Improves performance + fault tolerance
 
+#### Why Multiple AZs?
 
-EKS diagram 
-EKS Architecture (based on the diagram)
-🔹 Core Components
+- Provides resilience & fault tolerance
+- If one AZ fails, traffic is routed to nodes in other AZs
+- Keeps the application always available
 
-EKS Worker Nodes
-
-The yellow boxes = EC2 instances running Kubernetes worker processes.
-
-These nodes actually run your pods (smallest unit in Kubernetes).
-
-Pods
-
-Groups of containers that perform specific tasks.
-
-Hosted inside the worker nodes.
-
-Auto Scaling Group (ASG)
-
-Worker nodes are part of an ASG.
-
-Scales nodes up/down automatically based on load.
-
-🔹 Networking & Security (VPC setup)
-
-VPC (Virtual Private Cloud)
-
-Isolated private network where the entire EKS setup runs.
-
-Ensures secure communication between components.
-
-AZs (Availability Zones)
-
-Multiple AZs used for high availability.
-
-If one AZ goes down, others keep the app running.
-
-Private Subnets
-
-Worker nodes are deployed here for security.
-
-Not directly exposed to the public internet.
-
-NAT Gateway
-
-One in each AZ.
-
-Lets worker nodes access the internet outbound (e.g., to pull Docker images, updates).
-
-Prevents inbound public traffic from reaching nodes directly.
-
-🔹 Traffic Management
-
-ELB (Elastic Load Balancer)
-
-Distributes incoming user traffic across nodes.
-
-Sends requests to healthy nodes only.
-
-Improves performance + fault tolerance.
-
-🔹 Why Multiple AZs?
-
-Provides resilience & fault tolerance.
-
-If one AZ fails, traffic is routed to nodes in other AZs.
-
-Keeps the application always available.
-
-✅ Summary
+**Summary**
 
 This architecture is a secure, scalable, highly available setup for Kubernetes on AWS.
 
 EKS nodes + pods → Run your workloads.
-
 ELB → Balances user traffic.
-
 NAT Gateways → Allow safe outbound internet access.
-
 VPC + private subnets → Provide security and isolation.
-
 Multiple AZs → Ensure uptime even if one zone fails.
 
-<img width="758" height="365" alt="image" src="https://github.com/user-attachments/assets/6e28614a-2f0c-4ace-9a2d-c0d4c80363b4" />
+### Amazon EKS Node Types
 
-amazon eks nonde types 
-managed node groups
-creates and manages nodes 9EC2 instance for you
-nondes are apart of an ASG managed by EKS
-supports on demand oir spot instances 
+**Managed Node Groups**
+- Creates and manages nodes (EC2 instances) for you
+- Nodes are part of an ASG managed by EKS
+- Supports on demand or spot instances
 
-self managed nondes 
-nodes created by you and register to thee EKS cluster and manged by ASG 
-you can use prebuilt AMI amazon EKS optomised AMI
-support on demand or spot instances
+**Self Managed Nodes**
+- Nodes created by you and register to the EKS cluster and managed by ASG
+- You can use prebuilt AMI amazon EKS optimised AMI
+- Support on demand or spot instances
 
-AWS fargate 
-no mantinence requirewd no nones managed its serrverless all you need to do is define cpu and memory requirments for containers 
+**AWS Fargate**
+- No maintenance required no nodes managed its serverless all you need to do is define cpu and memory requirements for containers
 
-##Serverless
-Serverless overvbiew 
-serverless is when develiops dont have to manage servers anymore 
-they just deploy code 
-they deploy functions 
-serverless is a FAAS fdunction as a service 
-serverless was pioneered by AWS lambda but noe includes anyhhingthing that managed 
-serverless does not mean rhere are no serevers
-it means you dont manage provision or see them 
+---
 
-serverles in aws 
-lambda us the core of servereless offerings
-you just write your functions deploy the lambda function and it does the job 
-dynamoDB - fully managed serverless nosql data basethats scales automaticlly
-cognito - shelps manage user authentication easier to handle logins and signups on applications
-api gateway - acts like a bridge between users and ;ambas functions you can create and monitor apis which interact with yout back end services
-S3 - serveress offering for storing files and conetent
-SNS & SQS SNS handles nototficatrionsd SQS queues messaging between services they are messaging systems 
-Kineses data fire hose - used to lower streaming data in tghe AWS dfor analysis and storage 
-AUror serverless - fully managed serverless data basew theat auto scales on demand
-step functions - step functions helps you manage multiple lambda functions 
-fargate - serverless compute option AWS handles your ec2 instances 
+## Serverless
 
-<img width="226" height="270" alt="image" src="https://github.com/user-attachments/assets/dc42629a-d581-4636-9d46-86a51f346076" />
+### Serverless Overview
 
-why aws lambda 
-Why Use AWS Lambda?
-🔹 EC2 (Elastic Compute Cloud)
+Serverless is when developers don't have to manage servers anymore
 
-Virtual servers (VMs) in the cloud.
+They just deploy code
 
-You choose CPU & memory for each instance.
+They deploy functions
 
-Always running → you pay even when idle.
+Serverless is a FAAS (Function as a Service)
 
-Scaling requires manual setup (or auto scaling configs).
+Serverless was pioneered by AWS lambda but now includes anything that's managed
 
-Good for long-running applications or when you need full control.
+Serverless does not mean there are no servers
 
-🔹 Lambda (Serverless Functions)
+It means you don't manage provision or see them
 
-No servers to manage → AWS handles it.
+### Serverless in AWS
 
-Runs on-demand, only when triggered.
+![Serverless in AWS](https://github.com/user-attachments/assets/dc42629a-d581-4636-9d46-86a51f346076)
 
-Billed only for execution time (no idle cost).
+**Lambda** - US the core of serverless offerings
+You just write your functions deploy the lambda function and it does the job
 
-Execution limit → max 15 minutes per function.
+**DynamoDB** - fully managed serverless nosql database that scales automatically
 
-Best for short, event-driven tasks (e.g., S3 upload trigger, API call, stream processing).
+**Cognito** - helps manage user authentication easier to handle logins and signups on applications
 
-Automatic scaling → handles 1 to 1M+ requests seamlessly.
+**API Gateway** - acts like a bridge between users and lambdas functions you can create and monitor apis which interact with your back end services
 
-✅ Summary
+**S3** - serverless offering for storing files and content
+
+**SNS & SQS** - SNS handles notifications SQS queues messaging between services they are messaging systems
+
+**Kinesis Data Fire hose** - used to lower streaming data in the AWS for analysis and storage
+
+**Aurora Serverless** - fully managed serverless database that auto scales on demand
+
+**Step Functions** - step functions helps you manage multiple lambda functions
+
+**Fargate** - serverless compute option AWS handles your ec2 instances
+
+### Why AWS Lambda
+
+#### EC2 (Elastic Compute Cloud)
+
+- Virtual servers (VMs) in the cloud
+- You choose CPU & memory for each instance
+- Always running → you pay even when idle
+- Scaling requires manual setup (or auto scaling configs)
+- Good for long-running applications or when you need full control
+
+#### Lambda (Serverless Functions)
+
+- No servers to manage → AWS handles it
+- Runs on-demand, only when triggered
+- Billed only for execution time (no idle cost)
+- Execution limit → max 15 minutes per function
+- Best for short, event-driven tasks (e.g., S3 upload trigger, API call, stream processing)
+- Automatic scaling → handles 1 to 1M+ requests seamlessly
+
+**Summary**
 
 EC2 = Full control, but you manage servers, scaling, and costs (can pay for idle).
 
 Lambda = Serverless, auto-scaling, cost-efficient, but limited to short-lived, event-driven workloads.
 
+### Benefits of Lambda
 
-benefits of lambda 
-easy pricing - pay fopr what you use
-free tier gve 1000000 requests and 4000000Gb of compoute time
-intigrated wuth the whole aws suite of services
-integrated with many programming manguages 
-easy monitoringh through cloudwatch
-easy to get more resources per functions
-increasing ram will improves CPU and network
+**Easy pricing** - pay for what you use
+- Free tier give 1000000 requests and 4000000Gb of compute time
+- Integrated with the whole aws suite of services
+- Integrated with many programming languages
+- Easy monitoring through cloudwatch
+- Easy to get more resources per functions
+- Increasing ram will improves CPU and network
 
-🔹 Built-in Supported Languages
+#### Built-in Supported Languages
 
-Node.js (JavaScript) → great for event-driven apps.
+- **Node.js (JavaScript)** → great for event-driven apps
+- **Python** → widely used for data processing, automation, serverless web apps
+- **Java** → popular for enterprise-level apps
+- **C#, .NET Core, PowerShell** → strong fit for Microsoft developer background
+- **Ruby** → good for scalable web apps (e.g., with Rails)
 
-Python → widely used for data processing, automation, serverless web apps.
+#### Custom Runtimes
 
-Java → popular for enterprise-level apps.
+- Use the Lambda Runtime API to bring your own language
+- Example: Go (Golang) and other non-officially supported languages
+- Lets you choose a language that fits your project best
 
-C#, .NET Core, PowerShell → strong fit for Microsoft developer background.
+#### Lambda Container Images
 
-Ruby → good for scalable web apps (e.g., with Rails).
+- Package your app into a Docker container image
+- Ideal for:
+  - Complex app setups
+  - Custom dependencies
+  - More control over runtime environment
+- Requirement: container must implement Lambda Runtime API
 
-🔹 Custom Runtimes
+If you want full flexibility with Docker containers (beyond Lambda limits), use ECS Fargate instead.
 
-Use the Lambda Runtime API to bring your own language.
+**Summary**
 
-Example: Go (Golang) and other non-officially supported languages.
+AWS Lambda supports multiple languages out-of-the-box, plus custom runtimes and container images for flexibility. This means you can run serverless functions in the language and environment you're most comfortable with.
 
-Lets you choose a language that fits your project best.
+### Example of Serverless
 
-🔹 Lambda Container Images
+#### Example: Serverless Thumbnail Creation
 
-Package your app into a Docker container image.
+![Serverless Thumbnail Creation](https://github.com/user-attachments/assets/d7c0fb02-609e-4b75-87cf-e59f7034d32c)
 
-Ideal for:
+**Flow of Events**
 
-Complex app setups.
+1. **Upload Image to S3**
+   - User uploads an image (e.g., beach photo) to an S3 bucket
+   - This is the starting point
 
-Custom dependencies.
+2. **Trigger Event**
+   - The S3 upload event automatically triggers a Lambda function
+   - No manual step → fully event-driven
 
-More control over runtime environment.
+3. **Lambda Function Executes**
+   - Lambda takes the uploaded image
+   - Generates a smaller thumbnail version
 
-Requirement: container must implement Lambda Runtime API.
+4. **Push to S3**
+   - The new thumbnail is stored back into S3 (often in a different bucket/folder)
+   - Now you have both the full-size image + the thumbnail
 
-👉 If you want full flexibility with Docker containers (beyond Lambda limits), use ECS Fargate instead.
+5. **Store Metadata in DynamoDB**
+   - Lambda also records details about the image (name, size, timestamp, etc.)
+   - Stored in DynamoDB for easy querying later
 
-✅ Summary
+**Why This Is Cool**
 
-AWS Lambda supports multiple languages out-of-the-box, plus custom runtimes and container images for flexibility. This means you can run serverless functions in the language and environment you’re most comfortable with.
+- **Fully Automated** → just upload the image, everything else happens automatically
+- **Serverless** → no servers to manage, AWS handles scaling
+- **Cost-Efficient** → pay only when Lambda runs + storage costs
+- **Scalable** → works whether 1 image or 1 million images are uploaded
 
-example of serveerlsss
-Example: Serverless Thumbnail Creation
-🔹 Flow of Events
+#### Example: Scheduled Task with EventBridge + Lambda
 
-Upload Image to S3
+![Scheduled Task](https://github.com/user-attachments/assets/47c98910-dc61-43ab-98e7-e7fab861abe4)
 
-User uploads an image (e.g., beach photo) to an S3 bucket.
+**Flow**
 
-This is the starting point.
+1. **EventBridge (CloudWatch Events)**
+   - Acts like a scheduler/cron job
+   - Example: trigger every 1 hour
+   - Can be set to run at specific times/dates using cron expressions
 
-Trigger Event
+2. **Lambda Function**
+   - Triggered automatically by EventBridge
+   - Runs your code only when scheduled
+   - Can perform tasks like:
+     - Backups
+     - Cleanup jobs
+     - Generating reports
+     - Interacting with other AWS services (e.g., S3, DynamoDB, EC2)
 
-The S3 upload event automatically triggers a Lambda function.
+**Why This Is Useful**
 
-No manual step → fully event-driven.
+- **Event-driven** → runs only when triggered
+- **No servers** → no need for a VM running 24/7
+- **Cost-effective** → you only pay when Lambda runs
+- **Flexible scheduling** → run every minute, hour, day, or custom cron timing
 
-Lambda Function Executes
-
-Lambda takes the uploaded image.
-
-Generates a smaller thumbnail version.
-
-Push to S3
-
-The new thumbnail is stored back into S3 (often in a different bucket/folder).
-
-Now you have both the full-size image + the thumbnail.
-
-Store Metadata in DynamoDB
-
-Lambda also records details about the image (name, size, timestamp, etc.).
-
-Stored in DynamoDB for easy querying later.
-
-🔹 Why This Is Cool
-
-Fully Automated → just upload the image, everything else happens automatically.
-
-Serverless → no servers to manage, AWS handles scaling.
-
-Cost-Efficient → pay only when Lambda runs + storage costs.
-
-Scalable → works whether 1 image or 1 million images are uploaded.
-
-<img width="510" height="284" alt="image" src="https://github.com/user-attachments/assets/d7c0fb02-609e-4b75-87cf-e59f7034d32c" />
-
-Example: Scheduled Task with EventBridge + Lambda
-🔹 Flow
-
-EventBridge (CloudWatch Events)
-
-Acts like a scheduler/cron job.
-
-Example: trigger every 1 hour.
-
-Can be set to run at specific times/dates using cron expressions.
-
-Lambda Function
-
-Triggered automatically by EventBridge.
-
-Runs your code only when scheduled.
-
-Can perform tasks like:
-
-Backups
-
-Cleanup jobs
-
-Generating reports
-
-Interacting with other AWS services (e.g., S3, DynamoDB, EC2).
-
-🔹 Why This Is Useful
-
-Event-driven → runs only when triggered.
-
-No servers → no need for a VM running 24/7.
-
-Cost-effective → you only pay when Lambda runs.
-
-Flexible scheduling → run every minute, hour, day, or custom cron timing.
-
-✅ Summary:
+**Summary:**
 EventBridge = scheduler
 Lambda = worker
 Together → fully managed, cost-efficient way to automate recurring tasks in AWS.
 
+---
 
-<img width="407" height="255" alt="image" src="https://github.com/user-attachments/assets/47c98910-dc61-43ab-98e7-e7fab861abe4" />
+## Amazon Networking
 
+### Understanding CIDR - IPv4
 
-##Amazon Netwirking 
-Understanding CIDR - IPv4
-classless inter domain routing 
-CIDR is a method for allocating IP[ addresses 
-CIDR help us define IP ranges 
-if an IP address  has XX.XX.XX.XX/(ANYMUMBER) - 1 IP
-if an ip is 0.0.0.0/0 is is public 
+Classless Inter Domain Routing
 
-CIDR consists of two components 
-BASE IP
-represents an Ip congaienr range 
-ecxample 10.0.0.0,192168.0.0
-Subnet mask
-Defioes how many bits and IP can chnage 
-exampple /0/24/32
-can take 2 forms 
-/8  ó  255.0.0.0
-/16 ó  255.255.0.0
-/24 ó  255.255.255.0
-/32 ó  255.255.255.255
+CIDR is a method for allocating IP addresses
 
-visual break down 
-Here’s a visual breakdown of CIDR:
+CIDR help us define IP ranges
 
-Blue = network bits (fixed, define the subnet)
+If an IP address has XX.XX.XX.XX/(ANYNUMBER) - 1 IP
 
-Gray = host bits (variable, used for devices inside the subnet)
+If an ip is 0.0.0.0/0 is is public
 
-/8 → Huge network, many hosts (16M+)
+#### CIDR consists of two components
 
-/16 → Medium network (65K hosts)
+**BASE IP**
+- Represents an IP container range
+- Example 10.0.0.0,192168.0.0
 
-/24 → Small network (254 hosts, common in LANs)
+**Subnet mask**
+- Defines how many bits and IP can change
+- Example /0/24/32
+- Can take 2 forms
+  - /8 → 255.0.0.0
+  - /16 → 255.255.0.0
+  - /24 → 255.255.255.0
+  - /32 → 255.255.255.255
 
-/32 → Single device (no host bits left)
+### Visual Breakdown
+
+![CIDR Visual](https://github.com/user-attachments/assets/bbbeccd5-da9d-4a88-9e51-54a213992221)
+
+Here's a visual breakdown of CIDR:
+
+- **Blue** = network bits (fixed, define the subnet)
+- **Gray** = host bits (variable, used for devices inside the subnet)
+
+- /8 → Huge network, many hosts (16M+)
+- /16 → Medium network (65K hosts)
+- /24 → Small network (254 hosts, common in LANs)
+- /32 → Single device (no host bits left)
 
 This way, you can literally see how the prefix length (/X) shrinks the host space and increases network specificity.
-<img width="1979" height="1180" alt="output" src="https://github.com/user-attachments/assets/bbbeccd5-da9d-4a88-9e51-54a213992221" />
 
-Understanding CIDR - subnet mask 
+### Understanding CIDR - Subnet Mask
+
+![Subnet Mask](https://github.com/user-attachments/assets/bc6023a1-715e-4af6-b137-74334891b7a4)
+
 A subnet mask (or CIDR slash notation) defines how many IP addresses exist in a subnet.
 
-/32 → Only 1 IP (usually assigned to a single host).
+- /32 → Only 1 IP (usually assigned to a single host)
+- /31 → 2 IPs
+- /30 → 4 IPs
+- /29 → 8 IPs
+- /28 → 16 IPs
+- /27 → 32 IPs
+- /26 → 64 IPs
+- /25 → 128 IPs
+- /24 → 256 IPs
+- /16 → 65,536 IPs
+- /0 → Covers all IPs (entire IPv4 space)
 
-/31 → 2 IPs
+Notice how each step doubles the number of available IPs. That's because each time you reduce the subnet mask (make it less restrictive), you free up one more host bit, which doubles the possible addresses.
 
-/30 → 4 IPs
-
-/29 → 8 IPs
-
-/28 → 16 IPs
-
-/27 → 32 IPs
-
-/26 → 64 IPs
-
-/25 → 128 IPs
-
-/24 → 256 IPs
-
-/16 → 65,536 IPs
-
-/0 → Covers all IPs (entire IPv4 space)
-
-👉 Notice how each step doubles the number of available IPs. That’s because each time you reduce the subnet mask (make it less restrictive), you free up one more host bit, which doubles the possible addresses.
-
-🔹 Octet Relationship (from the image)
+#### Octet Relationship
 
 Think of an IP address as 4 octets (192.168.0.0 for example).
 
-/32 → No octet can change → one IP
+- /32 → No octet can change → one IP
+- /24 → Last octet can change (0–255) → 256 IPs
+- /16 → Last two octets can change (0–255.0–255) → 65,536 IPs
+- /8 → Last three octets can change → 16.7 million IPs
+- /0 → All octets can change → every IPv4 address
 
-/24 → Last octet can change (0–255) → 256 IPs
+#### Example Walkthrough
 
-/16 → Last two octets can change (0–255.0–255) → 65,536 IPs
+Let's take 192.168.0.0/30:
 
-/8 → Last three octets can change → 16.7 million IPs
-
-/0 → All octets can change → every IPv4 address
-
-🔹 Example Walkthrough
-
-Let’s take 192.168.0.0/30:
-
-Subnet mask: 255.255.255.252
-
-Binary: 11111111.11111111.11111111.11111100
-
-Host bits: 2 (the last two zeroes)
-
-Total IPs = 2² = 4
+- Subnet mask: 255.255.255.252
+- Binary: 11111111.11111111.11111111.11111100
+- Host bits: 2 (the last two zeroes)
+- Total IPs = 2² = 4
 
 That gives you:
-
-192.168.0.0 → Network address  
-192.168.0.1 → Usable host  
-192.168.0.2 → Usable host  
-192.168.0.3 → Broadcast address
-
+- 192.168.0.0 → Network address
+- 192.168.0.1 → Usable host
+- 192.168.0.2 → Usable host
+- 192.168.0.3 → Broadcast address
 
 So /30 means 2 usable IPs for devices.
 
-🔹 Why This Matters (AWS & VPC Example)
+#### Why This Matters (AWS & VPC Example)
 
-In AWS, when you create a VPC (Virtual Private Cloud) or subnets, you must plan how many IPs you’ll need:
+In AWS, when you create a VPC (Virtual Private Cloud) or subnets, you must plan how many IPs you'll need:
 
-/16 → Large network, ~65K IPs (used for VPC range).
+- /16 → Large network, ~65K IPs (used for VPC range)
+- /24 → Smaller subnet, 256 IPs (commonly used for private or public subnets)
 
-/24 → Smaller subnet, 256 IPs (commonly used for private or public subnets).
+This way, you don't run out of addresses, and you don't waste too many.
 
-This way, you don’t run out of addresses, and you don’t waste too many.
+**Summary:**
 
-✅ Summary:
+- Subnet masks tell you how many IPs are in a range
+- The number of IPs doubles each time you increase host bits by 1
+- CIDR /X → smaller number means more hosts, larger number means more specific, fewer hosts
+- AWS typically uses /16 (for VPCs) and /24 (for subnets)
 
-Subnet masks tell you how many IPs are in a range.
+### Public vs Private IPv4
 
-The number of IPs doubles each time you increase host bits by 1.
-
-CIDR /X → smaller number means more hosts, larger number means more specific, fewer hosts.
-
-AWS typically uses /16 (for VPCs) and /24 (for subnets).
-<img width="780" height="264" alt="image" src="https://github.com/user-attachments/assets/bc6023a1-715e-4af6-b137-74334891b7a4" />
-
-public vs private IPV4 
-1. Private IPv4 Addresses
+#### 1. Private IPv4 Addresses
 
 The IANA (Internet Assigned Numbers Authority) reserved specific IP ranges for private use only. These addresses are not routable on the public internet — they are meant for local networks (like your home Wi-Fi, office LAN, or cloud VPC).
 
 The reserved private ranges are:
 
-10.0.0.0 → 10.255.255.255 (10/8 range)
+- 10.0.0.0 → 10.255.255.255 (10/8 range)
+- 172.16.0.0 → 172.31.255.255 (172.16/12 range)
+- 192.168.0.0 → 192.168.255.255 (192.168/16 range)
 
-172.16.0.0 → 172.31.255.255 (172.16/12 range)
-
-192.168.0.0 → 192.168.255.255 (192.168/16 range)
-
-👉 Example:
-
+**Example:**
 Your home router might give your laptop an IP like 192.168.1.10.
-
 That IP works inside your house, but no one on the internet can reach it directly.
 
-Special note:
+**Special note:**
+127.0.0.1 = Loopback address → used to test networking on your own computer ("localhost").
 
-127.0.0.1 = Loopback address → used to test networking on your own computer (“localhost”).
-
-🔹 2. Public IPv4 Addresses
+#### 2. Public IPv4 Addresses
 
 Any IPv4 address outside those private ranges is a public IP.
 
-These can be accessed from anywhere on the internet (as long as firewalls or ISPs don’t block them).
+These can be accessed from anywhere on the internet (as long as firewalls or ISPs don't block them).
 
 Websites, servers, and cloud services usually use public IPs so users around the world can connect.
 
-👉 Example:
+**Example:**
+- Google DNS: 8.8.8.8 → Public
+- A website's server might be 203.0.113.25 → Public
 
-Google DNS: 8.8.8.8 → Public
+#### 3. How They Work Together
 
-A website’s server might be 203.0.113.25 → Public
+- Your home devices use private IPs (e.g., 192.168.1.20)
+- Your router has a public IP assigned by your ISP (e.g., 81.2.69.142)
+- NAT (Network Address Translation) maps your private IPs → public IP, so you can browse the internet
+- Without NAT and private IP ranges, we would've run out of IPv4 addresses decades ago
 
-🔹 3. How They Work Together
+**Summary:**
 
-Your home devices use private IPs (e.g., 192.168.1.20).
+- **Private IPs** = Local networks only (10.x.x.x, 172.16–31.x.x, 192.168.x.x)
+- **Public IPs** = Routable on the internet, used by websites & servers
+- **Loopback** (127.0.0.1) = Your own machine, for local testing
+- **NAT** lets private IP devices share one public IP to connect online
 
-Your router has a public IP assigned by your ISP (e.g., 81.2.69.142).
+### Default VPC
 
-NAT (Network Address Translation) maps your private IPs → public IP, so you can browse the internet.
+**Default VPC** (what you get automatically)
 
-Without NAT and private IP ranges, we would’ve run out of IPv4 addresses decades ago.
+- Comes with your AWS account (1 per region)
+- Already has internet access via an Internet Gateway
+- Has 1 public subnet per AZ
+- EC2s launched here get a public + private IPv4 by default
+- EC2s also get DNS names (public + private)
+- Includes a default security group + route table
 
-✅ Summary:
+### VPC in AWS
 
-Private IPs = Local networks only (10.x.x.x, 172.16–31.x.x, 192.168.x.x).
-
-Public IPs = Routable on the internet, used by websites & servers.
-
-Loopback (127.0.0.1) = Your own machine, for local testing.
-
-NAT lets private IP devices share one public IP to connect online.
-
-default vpc 
-Default VPC (what you get automatically)
-
-Comes with your AWS account (1 per region).
-
-Already has internet access via an Internet Gateway.
-
-Has 1 public subnet per AZ.
-
-EC2s launched here get a public + private IPv4 by default.
-
-EC2s also get DNS names (public + private).
-
-Includes a default security group + route table.
-
-VPC in AWS
-AWS VPC (Virtual Private Cloud) Notes
+**AWS VPC (Virtual Private Cloud) Notes**
 
 A VPC = your own private network in AWS (like a mini data center).
 
 You can have up to 5 VPCs per region by default (limit can be increased).
 
-🔹 CIDR Range Limits
+#### CIDR Range Limits
 
-Smallest: /28 → 16 IPs
+- **Smallest**: /28 → 16 IPs
+- **Largest**: /16 → 65,536 IPs
 
-Largest: /16 → 65,536 IPs
+#### Allowed Private IP Ranges
 
-🔹 Allowed Private IP Ranges
+- 10.0.0.0/8 → very large networks
+- 172.16.0.0 – 172.31.255.255 (/12) → AWS commonly uses 172.31.0.0/16 for default VPCs
+- 192.168.0.0/16 → common for home networks
 
-10.0.0.0/8 → very large networks
+#### Important Rule
 
-172.16.0.0 – 172.31.255.255 (/12) → AWS commonly uses 172.31.0.0/16 for default VPCs
-
-192.168.0.0/16 → common for home networks
-
-🔹 Important Rule
-
-🚨 VPC CIDR must not overlap with:
-
-Other VPCs
-
-Your corporate network
-
-Any connected network
+**VPC CIDR must not overlap with:**
+- Other VPCs
+- Your corporate network
+- Any connected network
 
 Otherwise, routing will break.
 
-👉 In short:
+**In short:**
 A VPC gives you a custom private network in AWS, with flexible IP ranges, but you need to plan the CIDR carefully to avoid overlap.
 
-VPC - subnet IPv4 
-Subnets in a VPC
+### VPC - Subnet IPv4
 
-Subnets = smaller networks inside your VPC.
+**Subnets in a VPC**
 
-Spread across Availability Zones (AZs) for redundancy & high availability.
+- Subnets = smaller networks inside your VPC
+- Spread across Availability Zones (AZs) for redundancy & high availability
+- Can be:
+  - **Public subnet** → internet access allowed
+  - **Private subnet** → no direct internet access
 
-Can be:
-
-Public subnet → internet access allowed.
-
-Private subnet → no direct internet access.
-
-🔹 AWS Reserves 5 IPs in Every Subnet
+#### AWS Reserves 5 IPs in Every Subnet
 
 Example: 10.0.0.0/24 → 256 IPs total, but 5 are reserved:
 
-.0 → Network address
+- .0 → Network address
+- .1 → VPC router
+- .2 → Amazon DNS
+- .3 → Future use
+- .255 → Broadcast (AWS doesn't use broadcast, but still reserved)
 
-.1 → VPC router
+So usable IPs = total - 5.
 
-.2 → Amazon DNS
+#### Example of Planning
 
-.3 → Future use
+- /27 = 32 IPs → usable = 27 (too small for 29 instances)
+- /26 = 64 IPs → usable = 59 (fits 29 instances)
 
-.255 → Broadcast (AWS doesn’t use broadcast, but still reserved)
+### Internet Gateway
 
-👉 So usable IPs = total - 5.
+Allows resources in a vpc to connect ot the internet
 
-🔹 Example of Planning
+Scales horizontally and is highly available and redundant must be created separately from a VPC
 
-/27 = 32 IPs → usable = 27 (too small for 29 instances).
+One VPC can only be attached to one IGW and etc
 
-/26 = 64 IPs → usable = 59 (fits 29 instances).
+IGW on their own do not allow internet access
 
-Internet gateway 
-alloews resources in a vpc to connect ot the internet 
-scales horizontally and is highlly avalible and redundant must be created seperatkly from a VPC
-one VPC van onoy be attached to one IGW and ect
-IGW on their own do not allow iunternet access
-rouite tables must also be updated 
+Route tables must also be updated
 
-bastion hosts 
-hat is a Bastion Host?
+### Bastion Hosts
 
-A bastion host = a special EC2 instance in a public subnet.
+![Bastion Host](https://github.com/user-attachments/assets/3ae70930-5bfc-4952-960f-8e4313d784d2)
 
-Acts as a secure bridge to reach private EC2 instances in a private subnet.
+#### What is a Bastion Host?
 
-You SSH into the bastion first, then from there into your private instances.
+- A bastion host = a special EC2 instance in a public subnet
+- Acts as a secure bridge to reach private EC2 instances in a private subnet
+- You SSH into the bastion first, then from there into your private instances
 
-🔹 Why Do We Need Them?
+#### Why Do We Need Them?
 
-Private EC2 instances (databases, backends) should not be exposed to the internet.
+- Private EC2 instances (databases, backends) should not be exposed to the internet
+- But admins still need a way to log in for maintenance/updates
+- Bastion hosts provide a controlled, secure entry point
 
-But admins still need a way to log in for maintenance/updates.
+#### How It Works (with your diagram)
 
-Bastion hosts provide a controlled, secure entry point.
+- Bastion Host sits in a public subnet
+- You SSH into the bastion from your office/home IP
+- From the bastion, you SSH into private EC2s inside the private subnet
 
-🔹 How It Works (with your diagram)
+#### Security Best Practices
 
-Bastion Host sits in a public subnet.
+- **Bastion Security Group** → only allow inbound SSH from trusted IPs (e.g., office IP range)
+- **Private EC2 Security Group** → only allow inbound SSH from the bastion host (not the whole internet)
+- Use key pairs or even MFA for stronger access control
 
-You SSH into the bastion from your office/home IP.
-
-From the bastion, you SSH into private EC2s inside the private subnet.
-
-🔹 Security Best Practices
-
-Bastion Security Group → only allow inbound SSH from trusted IPs (e.g., office IP range).
-
-Private EC2 Security Group → only allow inbound SSH from the bastion host (not the whole internet).
-
-Use key pairs or even MFA for stronger access control.
-
-✅ Summary:
+**Summary:**
 A bastion host = secure gateway to private EC2s. It prevents exposing sensitive systems directly to the internet while still allowing admins safe access when needed.
 
-Walkthrough of the Diagram
+#### Walkthrough of the Diagram
 
-User (Admin)
+**User (Admin)**
+- You (the admin) are outside the VPC
+- You connect via SSH into the bastion host
 
-You (the admin) are outside the VPC.
+**Public Subnet (Top Box)**
+- Contains the bastion host EC2 instance
+- Security Group (BastionHost-SG) only allows SSH from trusted IPs (like your office or home)
 
-You connect via SSH into the bastion host.
+**Private Subnet (Bottom Box)**
+- Contains the private EC2 instances (databases, backend servers)
+- These cannot be reached from the internet directly
+- Security Group (LinuxInstance-SG) allows SSH only from the bastion host
 
-Public Subnet (Top Box)
+**Flow**
+- You → SSH into Bastion Host (public subnet)
+- Bastion Host → SSH into Private EC2s (private subnet)
 
-Contains the bastion host EC2 instance.
-
-Security Group (BastionHost-SG) only allows SSH from trusted IPs (like your office or home).
-
-Private Subnet (Bottom Box)
-
-Contains the private EC2 instances (databases, backend servers).
-
-These cannot be reached from the internet directly.
-
-Security Group (LinuxInstance-SG) allows SSH only from the bastion host.
-
-Flow
-
-You → SSH into Bastion Host (public subnet).
-
-Bastion Host → SSH into Private EC2s (private subnet).
-
-🔹 Key Point
+**Key Point**
 
 The bastion host acts as the middleman:
+- Publicly accessible but restricted (secure)
+- Lets you safely reach private instances without exposing them to the internet
 
-Publicly accessible but restricted (secure).
+### NAT Gateway
 
-Lets you safely reach private instances without exposing them to the internet.
-<img width="277" height="380" alt="image" src="https://github.com/user-attachments/assets/3ae70930-5bfc-4952-960f-8e4313d784d2" />
+#### What is a NAT Gateway?
 
-NAT gateway 
-What is a NAT Gateway?
+- **NAT** = Network Address Translation
+- Lets private subnet instances access the internet (updates, APIs, patches)
+- Blocks inbound traffic → internet cannot reach private instances
 
-NAT = Network Address Translation
+#### Why It's Important
 
-Lets private subnet instances access the internet (updates, APIs, patches).
+- Keeps private resources secure (not exposed)
+- Still allows outbound internet access when needed
 
-Blocks inbound traffic → internet cannot reach private instances.
+#### Key Features
 
-🔹 Why It’s Important
+- **Fully managed by AWS** → no patching, scaling, or maintenance
+- **High bandwidth** → 5 Gbps baseline, auto-scales up to 100 Gbps
+- **AZ specific** → must deploy 1 per Availability Zone for redundancy
+- Uses an Elastic IP for outbound connections
+- Requires an Internet Gateway (NAT gateway → Internet Gateway → Internet)
+- No Security Groups needed (unlike NAT instances)
 
-Keeps private resources secure (not exposed).
+#### Limitations
 
-Still allows outbound internet access when needed.
+- Instances in the same subnet as the NAT gateway can't use it
+- Billed hourly + per GB of traffic → can get costly at scale
 
-🔹 Key Features
-
-Fully managed by AWS → no patching, scaling, or maintenance.
-
-High bandwidth → 5 Gbps baseline, auto-scales up to 100 Gbps.
-
-AZ specific → must deploy 1 per Availability Zone for redundancy.
-
-Uses an Elastic IP for outbound connections.
-
-Requires an Internet Gateway (NAT gateway → Internet Gateway → Internet).
-
-No Security Groups needed (unlike NAT instances).
-
-🔹 Limitations
-
-Instances in the same subnet as the NAT gateway can’t use it.
-
-Billed hourly + per GB of traffic → can get costly at scale.
-
-🔹 Typical Setup
+#### Typical Setup
 
 Private Subnet → routes outbound traffic → NAT Gateway (in Public Subnet) → Internet Gateway → Internet.
 
-✅ Summary:
+**Summary:**
 A NAT Gateway = a secure, managed bridge for private subnet instances to reach the internet outbound only, while keeping them safe from inbound internet traffic
 
-NAT Gateway with High Availability
-NAT Gateway & High Availability
-1. The Setup (from the diagram)
+### NAT Gateway with High Availability
+
+![NAT Gateway High Availability](https://github.com/user-attachments/assets/74f9fd5f-9753-497f-8ac4-c7a0d2fa3cb1)
+
+#### NAT Gateway & High Availability
+
+**1. The Setup (from the diagram)**
 
 VPC has:
+- **Public Subnets** (top row) → each with a NAT Gateway
+- **Private Subnets** (bottom row) → EC2 instances
+- NAT Gateways connect → Internet Gateway → Internet
+- Router handles the routing between subnets
 
-Public Subnets (top row) → each with a NAT Gateway.
+**2. The Problem (Single NAT Gateway)**
 
-Private Subnets (bottom row) → EC2 instances.
+- NAT Gateways are AZ-specific
+- If you only have one NAT Gateway in AZ-A, and AZ-A goes down:
+  - ✅ EC2s in AZ-B are still running
+  - ❌ But they lose internet access, because their traffic depended on the NAT Gateway in AZ-A
 
-NAT Gateways connect → Internet Gateway → Internet.
-
-Router handles the routing between subnets.
-
-2. The Problem (Single NAT Gateway)
-
-NAT Gateways are AZ-specific.
-
-If you only have one NAT Gateway in AZ-A, and AZ-A goes down:
-
-✅ EC2s in AZ-B are still running.
-
-❌ But they lose internet access, because their traffic depended on the NAT Gateway in AZ-A.
-
-3. The Solution (Multiple NAT Gateways)
+**3. The Solution (Multiple NAT Gateways)**
 
 Deploy a NAT Gateway in each AZ where you have resources.
 
 Example:
-
-NAT Gateway in AZ-A → serves EC2s in AZ-A.
-
-NAT Gateway in AZ-B → serves EC2s in AZ-B.
+- NAT Gateway in AZ-A → serves EC2s in AZ-A
+- NAT Gateway in AZ-B → serves EC2s in AZ-B
 
 If one AZ fails, the other AZ still has internet connectivity.
 
-🔹 Why This Matters
+#### Why This Matters
 
-High Availability → avoids single points of failure.
+- **High Availability** → avoids single points of failure
+- **Disaster Recovery** → ensures your private workloads (databases, app servers) can still reach the internet for updates/APIs
 
-Disaster Recovery → ensures your private workloads (databases, app servers) can still reach the internet for updates/APIs.
-
-✅ Summary:
+**Summary:**
 A NAT Gateway is only highly available within its own AZ. To achieve true high availability across multiple AZs, deploy one NAT Gateway per AZ.
-<img width="417" height="439" alt="image" src="https://github.com/user-attachments/assets/74f9fd5f-9753-497f-8ac4-c7a0d2fa3cb1" />
 
-NAT Gateway vs NAT Instance
+### NAT Gateway vs NAT Instance
+
+![NAT Gateway vs NAT Instance](https://github.com/user-attachments/assets/da1c6e6d-6adb-4aee-afa8-8c9a9e51d19e)
+
 | Feature              | **NAT Gateway** 🟦                                | **NAT Instance** 🟧                          |
 | -------------------- | ------------------------------------------------- | -------------------------------------------- |
 | **Availability**     | HA within an AZ (deploy 1 per AZ for multi-AZ HA) | No built-in HA (needs failover scripts)      |
@@ -2815,758 +2635,586 @@ NAT Gateway vs NAT Instance
 | **Security Groups**  | Not needed (AWS manages security)                 | Can attach SGs like any EC2                  |
 | **Bastion Host Use** | ❌ No (only forwards traffic)                      | ✅ Yes (can double as bastion host/jump box)  |
 | **Scaling**          | Auto-scales                                       | Manual (resize EC2 or add more)              |
-Summary
 
-NAT Gateway → Best for production: scalable, simple, low maintenance, but higher cost.
+**Summary**
 
-NAT Instance → More flexible & cheaper for small setups, but requires manual management and gives you extra options (like doubling as a bastion host).
-<img width="764" height="338" alt="image" src="https://github.com/user-attachments/assets/da1c6e6d-6adb-4aee-afa8-8c9a9e51d19e" />
-🔹 NACLs (Network Access Control Lists)
-1. Basics
+- **NAT Gateway** → Best for production: scalable, simple, low maintenance, but higher cost
+- **NAT Instance** → More flexible & cheaper for small setups, but requires manual management and gives you extra options (like doubling as a bastion host)
 
-Work at the subnet level (1 NACL per subnet).
+### NACLs (Network Access Control Lists)
 
-Act like a big filter that allows or denies traffic.
+#### 1. Basics
 
-Every subnet gets a default NACL, but you can create custom ones.
+- Work at the subnet level (1 NACL per subnet)
+- Act like a big filter that allows or denies traffic
+- Every subnet gets a default NACL, but you can create custom ones
 
-2. Key Characteristics
+#### 2. Key Characteristics
 
-Stateless → return traffic isn’t automatically allowed (must add both inbound + outbound rules).
+- **Stateless** → return traffic isn't automatically allowed (must add both inbound + outbound rules)
+- Rules are numbered (1–32766) →
+  - Lower numbers = higher precedence
+  - First match wins (no further rules are checked)
+- Catchall rule (*) at the end → denies everything not explicitly allowed
 
-Rules are numbered (1–32766) →
+#### 3. Example
 
-Lower numbers = higher precedence.
+- Rule #100: ALLOW 10.0.0.10/32
+- Rule #200: DENY 10.0.0.10/32
 
-First match wins (no further rules are checked).
-
-Catchall rule (*) at the end → denies everything not explicitly allowed.
-
-3. Example
-
-Rule #100: ALLOW 10.0.0.10/32
-
-Rule #200: DENY 10.0.0.10/32
 👉 Rule #100 takes precedence (lower number wins).
 
-4. Best Practices
+#### 4. Best Practices
 
-Use rule numbers in increments of 100 (100, 200, 300, …) → easy to insert new rules later.
+- Use rule numbers in increments of 100 (100, 200, 300, …) → easy to insert new rules later
+- Use NACLs for broad subnet-level blocking (e.g., block malicious IPs)
 
-Use NACLs for broad subnet-level blocking (e.g., block malicious IPs).
+#### 5. Why Use NACLs?
 
-5. Why Use NACLs?
+- Extra layer of security on top of Security Groups
+- Good for subnet-wide rules (affects all resources in that subnet)
+- Useful for blocking specific IPs/ranges before they reach your instances
 
-Extra layer of security on top of Security Groups.
-
-Good for subnet-wide rules (affects all resources in that subnet).
-
-Useful for blocking specific IPs/ranges before they reach your instances.
-
-✅ In summary:
+**In summary:**
 NACLs = stateless subnet firewalls. They control traffic in/out of a subnet with numbered rules (first match wins). Great for broad blocking and defense in depth.
 
-Security Groups & NACLs
-🔹 SGs vs NACLs (based on diagram)
-Scope
+### Security Groups & NACLs
 
-SG (Security Group) → Works at instance level (controls traffic to/from EC2).
+![Security Groups & NACLs](https://github.com/user-attachments/assets/9efecad3-9785-4add-bf7c-23ae381511ee)
 
-NACL (Network ACL) → Works at subnet level (controls traffic for all resources in subnet).
+#### SGs vs NACLs (based on diagram)
 
-Incoming Request (Left side of diagram)
+**Scope**
+- **SG (Security Group)** → Works at instance level (controls traffic to/from EC2)
+- **NACL (Network ACL)** → Works at subnet level (controls traffic for all resources in subnet)
 
-Traffic hits NACL inbound rules (stateless).
+**Incoming Request (Left side of diagram)**
+- Traffic hits NACL inbound rules (stateless)
+- Must be explicitly allowed
+- If denied → blocked immediately
+- If allowed → traffic reaches SG inbound rules (stateful)
+- If allowed by SG → request accepted
+- For the response:
+  - SG automatically allows it back (stateful)
+  - NACL outbound must also allow it (stateless)
 
-Must be explicitly allowed.
+**Outgoing Request (Right side of diagram)**
+- Instance sends traffic → SG outbound rules checked
+- If allowed → traffic leaves the instance
+- Then passes through NACL outbound rules (stateless)
+- Must explicitly allow it
+- When the response returns:
+  - Must pass NACL inbound rules (stateless)
+  - Then SG inbound rules (stateful)
 
-If denied → blocked immediately.
+**Key Difference**
+- **SGs are stateful** → If inbound is allowed, return traffic is allowed automatically
+- **NACLs are stateless** → Must allow both inbound + outbound explicitly
 
-If allowed → traffic reaches SG inbound rules (stateful).
-
-If allowed by SG → request accepted.
-
-For the response:
-
-SG automatically allows it back (stateful).
-
-NACL outbound must also allow it (stateless).
-
-Outgoing Request (Right side of diagram)
-
-Instance sends traffic → SG outbound rules checked.
-
-If allowed → traffic leaves the instance.
-
-Then passes through NACL outbound rules (stateless).
-
-Must explicitly allow it.
-
-When the response returns:
-
-Must pass NACL inbound rules (stateless).
-
-Then SG inbound rules (stateful).
-
-Key Difference
-
-SGs are stateful → If inbound is allowed, return traffic is allowed automatically.
-
-NACLs are stateless → Must allow both inbound + outbound explicitly.
-
-✅ Summary (diagram in words):
+**Summary (diagram in words):**
 
 NACLs filter first at the subnet edge → stateless (need rules in both directions).
-
 SGs filter next at the instance → stateful (return traffic auto-allowed).
-
 Together they provide layered security: subnet-wide + instance-level control.
-<img width="784" height="340" alt="image" src="https://github.com/user-attachments/assets/9efecad3-9785-4add-bf7c-23ae381511ee" />
 
-VPC peering 
-privatly connect two vpc using aws network
-make them behave as if they were int he same network
-must not overlaap CIDRs
-VPC peering connection is not transitive ( must be established for each VPC that need to communucate with otehr one
-you must update route taves in each VPC subnets to ensure EC2 instances can communicate with each otehr
+### VPC Peering
 
-VPC Peering Explained (with Diagram)
+![VPC Peering](https://github.com/user-attachments/assets/36edf5bc-6bf2-4870-a622-681c7547f50d)
 
-VPC-A and VPC-B
+Privately connect two vpc using aws network
+Make them behave as if they were in the same network
+Must not overlap CIDRs
+VPC peering connection is not transitive (must be established for each VPC that need to communicate with other one)
+You must update route tables in each VPC subnets to ensure EC2 instances can communicate with each other
 
-There’s a VPC Peering (A–B) connection.
+#### VPC Peering Explained (with Diagram)
 
-This allows private communication between A and B over AWS’s internal network (not the internet).
+**VPC-A and VPC-B**
+- There's a VPC Peering (A–B) connection
+- This allows private communication between A and B over AWS's internal network (not the internet)
 
-VPC-B and VPC-C
+**VPC-B and VPC-C**
+- There's also a VPC Peering (B–C) connection
+- So B and C can talk to each other privately
 
-There’s also a VPC Peering (B–C) connection.
+**VPC-A and VPC-C**
+- Notice: there is no direct peering connection between A and C
+- Even though A connects to B, and B connects to C → peering is non-transitive
+- Meaning A cannot automatically talk to C through B
+- 👉 If you want A and C to communicate, you must create a direct VPC Peering (A–C) (as shown on the left side of the diagram)
 
-So B and C can talk to each other privately.
+#### Key Notes from the Diagram
 
-VPC-A and VPC-C
+- **Non-transitive rule**: Just because A ↔ B and B ↔ C are connected, does NOT mean A ↔ C works
+- Route tables must be updated in each VPC so traffic knows to flow through the peering connection
+- No overlapping CIDRs allowed (A, B, and C must have different IP ranges)
 
-Notice: there is no direct peering connection between A and C.
-
-Even though A connects to B, and B connects to C → peering is non-transitive.
-
-Meaning A cannot automatically talk to C through B.
-
-👉 If you want A and C to communicate, you must create a direct VPC Peering (A–C) (as shown on the left side of the diagram).
-
-🔹 Key Notes from the Diagram
-
-Non-transitive rule: Just because A ↔ B and B ↔ C are connected, does NOT mean A ↔ C works.
-
-Route tables must be updated in each VPC so traffic knows to flow through the peering connection.
-
-No overlapping CIDRs allowed (A, B, and C must have different IP ranges).
-
-✅ In summary (diagram in words):
+**In summary (diagram in words):**
 
 VPC Peering creates private, secure links between VPCs.
-
 But communication is point-to-point only (non-transitive).
-
 If multiple VPCs need to talk, you must peer each pair directly.
-<img width="337" height="379" alt="image" src="https://github.com/user-attachments/assets/36edf5bc-6bf2-4870-a622-681c7547f50d" />
 
-VPC peering good to know 
+### VPC Peering Good to Know
 
-Cross-Account & Cross-Region Peering
+#### Cross-Account & Cross-Region Peering
 
 You can peer VPCs across:
-
-Different AWS accounts
-
-Different regions
+- Different AWS accounts
+- Different regions
 
 Useful for large orgs where teams/departments have separate accounts but need secure communication.
 
-2. Security Group (SG) References Across Accounts
+#### 2. Security Group (SG) References Across Accounts
 
 You can reference a security group in a peered VPC, even across accounts, as long as both VPCs are in the same region.
 
 Example: Instead of whitelisting IPs, you reference an SG ID from another account → traffic rules are more dynamic and secure.
 
-3. Why This Matters
+#### 3. Why This Matters
 
 Example:
-
-Prod account VPC + Dev account VPC.
-
-Normally isolated (for security).
-
-But sometimes Dev team needs access to Prod resources.
+- Prod account VPC + Dev account VPC
+- Normally isolated (for security)
+- But sometimes Dev team needs access to Prod resources
 
 With VPC peering + SG references:
+- Only specific traffic is allowed
+- The rest of the infrastructure stays isolated
 
-Only specific traffic is allowed.
+**Summary:**
 
-The rest of the infrastructure stays isolated.
+- VPC peering works across accounts and regions
+- You can use cross-account SG references (same region only) for easier, more secure traffic management
+- Great for multi-account orgs where environments (Dev, Prod, etc.) need selective, secure communication
 
-✅ Summary:
+### VPC Endpoints (AWS PrivateLink)
 
-VPC peering works across accounts and regions.
+![VPC Endpoints](https://github.com/user-attachments/assets/7abef26a-d9f7-47dc-8139-7ed092cca290)
 
-You can use cross-account SG references (same region only) for easier, more secure traffic management.
+#### What is a VPC Endpoint?
 
-Great for multi-account orgs where environments (Dev, Prod, etc.) need selective, secure communication.
+- Powered by AWS PrivateLink
+- Lets you connect to AWS services (S3, SNS, DynamoDB, etc.) privately inside AWS's network
+- No internet exposure → traffic never leaves AWS
 
- VPC Endpoints (AWS PrivateLink)
+#### Why Use It?
 
-🔹 What is a VPC Endpoint?
+- **Security** → avoids sending traffic over the public internet
+- **Reliability** → redundant + horizontally scalable
+- **No NAT/IGW required** → private instances can still reach AWS services without internet gateways or NAT gateways
 
-Powered by AWS PrivateLink.
+#### Two Options (Accessing AWS Services)
 
-Lets you connect to AWS services (S3, SNS, DynamoDB, etc.) privately inside AWS’s network.
+**Without VPC Endpoint**
+- Private instance → NAT Gateway → Internet → AWS service
+- Uses public internet path
 
-No internet exposure → traffic never leaves AWS.
+**With VPC Endpoint**
+- Private instance → VPC Endpoint → AWS service
+- Stays fully within AWS private network
 
-🔹 Why Use It?
+#### Common Issues
 
-Security → avoids sending traffic over the public internet.
+- **DNS resolution** → must be enabled for endpoints to resolve correctly
+- **Route tables** → must route traffic to the endpoint, not the internet
 
-Reliability → redundant + horizontally scalable.
-
-No NAT/IGW required → private instances can still reach AWS services without internet gateways or NAT gateways.
-
-🔹 Two Options (Accessing AWS Services)
-
-Without VPC Endpoint
-
-Private instance → NAT Gateway → Internet → AWS service.
-
-Uses public internet path.
-
-With VPC Endpoint
-
-Private instance → VPC Endpoint → AWS service.
-
-Stays fully within AWS private network.
-
-🔹 Common Issues
-
-DNS resolution → must be enabled for endpoints to resolve correctly.
-
-Route tables → must route traffic to the endpoint, not the internet.
-
-✅ Summary:
+**Summary:**
 VPC Endpoints let your resources in private subnets securely access AWS services without using the internet, improving security, compliance, and reliability.
 
-VPC Endpoints in Action (Diagram Explanation)
+#### VPC Endpoints in Action (Diagram Explanation)
 
-Public Subnet Path (Top)
+**Public Subnet Path (Top)**
+- The public EC2 instance connects to the internet through an Internet Gateway
+- From there, it reaches Amazon SNS directly (public path)
+- This is the "normal" way, but it exposes traffic to the public internet
 
-The public EC2 instance connects to the internet through an Internet Gateway.
+**Private Subnet – Option 1 (via NAT Gateway)**
+- The private EC2 instance has no direct internet access
+- To reach Amazon SNS, it must send traffic → NAT Gateway → Internet Gateway → Amazon SNS
+- This path works but still routes through the public internet
 
-From there, it reaches Amazon SNS directly (public path).
+**Private Subnet – Option 2 (via VPC Endpoint)**
+- Instead of using NAT, the private EC2 instance connects directly to Amazon SNS using a VPC Endpoint
+- This keeps traffic inside AWS's private network (powered by PrivateLink)
+- More secure, reliable, and cost-effective, since no NAT/IGW is needed
 
-This is the “normal” way, but it exposes traffic to the public internet.
+**In summary (diagram in words):**
 
-Private Subnet – Option 1 (via NAT Gateway)
+- **Public EC2** → IGW → SNS (public route)
+- **Private EC2**:
+  - Option 1 → NAT + IGW → SNS (internet path)
+  - Option 2 → VPC Endpoint → SNS (private path, more secure)
 
-The private EC2 instance has no direct internet access.
+### Types of Endpoints
 
-To reach Amazon SNS, it must send traffic → NAT Gateway → Internet Gateway → Amazon SNS.
+#### 1. Interface Endpoints (Powered by PrivateLink)
 
-This path works but still routes through the public internet.
+![Interface Endpoint](https://github.com/user-attachments/assets/5db38d85-87de-4dd5-b44b-192a727f3cc4)
 
-Private Subnet – Option 2 (via VPC Endpoint)
+- Creates an ENI (Elastic Network Interface) in your subnet
+- Provides a private IP for connecting to AWS services
+- Supports most AWS services (e.g., SNS, SQS, API Gateway, etc.)
+- Security Groups required → since traffic flows via the ENI
+- Cost: Charged hourly + per GB of data processed
 
-Instead of using NAT, the private EC2 instance connects directly to Amazon SNS using a VPC Endpoint.
+👉 **Best for:** private access to many AWS services (beyond S3/DynamoDB)
 
-This keeps traffic inside AWS’s private network (powered by PrivateLink).
+#### 2. Gateway Endpoints
 
-More secure, reliable, and cost-effective, since no NAT/IGW is needed.
+![Gateway Endpoint](https://github.com/user-attachments/assets/4e6c33a5-6348-4e99-9059-2a76369ce3bb)
 
-✅ In summary (diagram in words):
+- No ENI → works by updating route tables
+- Supports only S3 and DynamoDB
+- No Security Groups needed
+- Free → no hourly or data charges
 
-Public EC2 → IGW → SNS (public route).
+👉 **Best for:** cheap, simple access to S3/DynamoDB from private subnets
 
-Private EC2:
+#### Diagram Explanations
 
-Option 1 → NAT + IGW → SNS (internet path).
+**📌 Diagram 1: Interface Endpoint (first image)**
 
-Option 2 → VPC Endpoint → SNS (private path, more secure).
-<img width="309" height="326" alt="image" src="https://github.com/user-attachments/assets/7abef26a-d9f7-47dc-8139-7ed092cca290" />
+- Inside a private subnet, you have an EC2 instance
+- The EC2 connects to a VPC Endpoint (Interface)
+- This endpoint creates an ENI (PrivateLink) with a private IP
+- Through this ENI, the EC2 instance can securely connect to Amazon SNS without leaving the AWS network
 
-types of end points 
-1. Interface Endpoints (Powered by PrivateLink)
+👉 **Key point:** Requires SGs for traffic management, since it uses an ENI
 
-Creates an ENI (Elastic Network Interface) in your subnet.
+**📌 Diagram 2: Gateway Endpoint (second image)**
 
-Provides a private IP for connecting to AWS services.
+- Again, inside a private subnet, you have an EC2 instance
+- Instead of ENIs, the subnet's route table points traffic to the VPC Endpoint (Gateway)
+- That gateway provides direct private access to S3 or DynamoDB
+- No ENIs or security groups involved — just route configuration
 
-Supports most AWS services (e.g., SNS, SQS, API Gateway, etc.).
+👉 **Key point:** Free to use, but only supports S3 and DynamoDB
 
-Security Groups required → since traffic flows via the ENI.
+**In summary:**
 
-Cost: Charged hourly + per GB of data processed.
+- **Interface Endpoint** (PrivateLink + ENI) → flexible, supports many services, but costs money
+- **Gateway Endpoint** (Route-based) → free, simple, but only for S3/DynamoDB
 
-👉 Best for: private access to many AWS services (beyond S3/DynamoDB).
+### IPv6
 
-2. Gateway Endpoints
+#### IPv6 Basics
 
-No ENI → works by updating route tables.
+- **Successor to IPv4** (IPv4 = ~4.3 billion addresses, running out)
+- **IPv6** = 3.4 × 10³⁸ addresses → practically unlimited
+- Designed for the future: supports massive growth of connected devices
 
-Supports only S3 and DynamoDB.
+#### IPv6 in AWS
 
-No Security Groups needed.
+- Every IPv6 address is **public + internet-routable**
+- 👉 No "private" IPv6 ranges like in IPv4
+- You must use security controls (SGs, NACLs, firewalls) to protect resources
 
-Free → no hourly or data charges.
-
-👉 Best for: cheap, simple access to S3/DynamoDB from private subnets.
-🔹 Diagram Explanations
-📌 Diagram 1: Interface Endpoint (first image)
-
-Inside a private subnet, you have an EC2 instance.
-
-The EC2 connects to a VPC Endpoint (Interface).
-
-This endpoint creates an ENI (PrivateLink) with a private IP.
-
-Through this ENI, the EC2 instance can securely connect to Amazon SNS without leaving the AWS network.
-
-👉 Key point: Requires SGs for traffic management, since it uses an ENI.****
-<img width="336" height="246" alt="image" src="https://github.com/user-attachments/assets/5db38d85-87de-4dd5-b44b-192a727f3cc4" />
-Diagram 2: Gateway Endpoint (second image)
-
-Again, inside a private subnet, you have an EC2 instance.
-
-Instead of ENIs, the subnet’s route table points traffic to the VPC Endpoint (Gateway).
-
-That gateway provides direct private access to S3 or DynamoDB.
-
-No ENIs or security groups involved — just route configuration.
-
-👉 Key point: Free to use, but only supports S3 and DynamoDB.
-
-<img width="353" height="246" alt="image" src="https://github.com/user-attachments/assets/4e6c33a5-6348-4e99-9059-2a76369ce3bb" />
-
-In summary:
-
-Interface Endpoint (PrivateLink + ENI) → flexible, supports many services, but costs money.
-
-Gateway Endpoint (Route-based) → free, simple, but only for S3/DynamoDB.
-
-IPV6
-IPv6 Basics
-
-Successor to IPv4 (IPv4 = ~4.3 billion addresses, running out).
-
-IPv6 = 3.4 × 10³⁸ addresses → practically unlimited.
-
-Designed for the future: supports massive growth of connected devices.
-
-🔹 IPv6 in AWS
-
-Every IPv6 address is public + internet-routable.
-
-👉 No “private” IPv6 ranges like in IPv4.
-
-You must use security controls (SGs, NACLs, firewalls) to protect resources.
-
-🔹 IPv6 Format
+#### IPv6 Format
 
 Uses hexadecimal (0–9, A–F).
 
 Sections separated by colons (:), not dots.
 
-Example:
-
+**Example:**
+```
 2001:0db8:0000:0000:0000:ff00:0042:8329
+```
 
+Can shorten zeros with `::`:
+```
+2001:db8::ff00:42:8329 (double colon = multiple zero blocks)
+```
 
-Can shorten zeros with :::
+Only one `::` allowed per address.
 
-2001:db8::ff00:42:8329 (double colon = multiple zero blocks).
+#### Why IPv6?
 
-Only one :: allowed per address.
+- **Scalability** → billions of new IoT devices, cloud systems, mobile networks
+- **Future-proof** → solves IPv4 exhaustion problem
+- **AWS networking** → IPv6 preferred for massive scaling (global apps, multi-region)
 
-🔹 Why IPv6?
+**Summary:**
+IPv6 solves the address shortage of IPv4, introduces a new hex-based format, and in AWS all IPv6 addresses are public, so securing them is critical. It's the standard moving forward for large-scale cloud networks.
 
-Scalability → billions of new IoT devices, cloud systems, mobile networks.
+### IPv6 in VPC
 
-Future-proof → solves IPv4 exhaustion problem.
+#### 1. IPv4 Always On
 
-AWS networking → IPv6 preferred for massive scaling (global apps, multi-region).
+- You cannot disable IPv4 in a VPC or subnet
+- Enabling IPv6 = dual stack mode → both IPv4 + IPv6 active together
 
-✅ Summary:
-IPv6 solves the address shortage of IPv4, introduces a new hex-based format, and in AWS all IPv6 addresses are public, so securing them is critical. It’s the standard moving forward for large-scale cloud networks.
+#### 2. Dual Stack Mode
 
-IPv6 in VPC
-. IPv4 Always On
+- Resources can use both IPv4 and IPv6 at the same time
+- Provides compatibility (IPv4) + future-proofing (IPv6)
 
-You cannot disable IPv4 in a VPC or subnet.
-
-Enabling IPv6 = dual stack mode → both IPv4 + IPv6 active together.
-
-2. Dual Stack Mode
-
-Resources can use both IPv4 and IPv6 at the same time.
-
-Provides compatibility (IPv4) + future-proofing (IPv6).
-
-3. EC2 Instances with IPv6
+#### 3. EC2 Instances with IPv6
 
 Each instance gets:
-
-Private IPv4 → internal VPC communication.
-
-Public IPv6 → internet-routable.
+- **Private IPv4** → internal VPC communication
+- **Public IPv6** → internet-routable
 
 Internet Gateway supports both protocols, allowing outbound + inbound traffic.
 
-4. Why It Matters
+#### 4. Why It Matters
 
-Smooth transition from IPv4 to IPv6.
+- Smooth transition from IPv4 to IPv6
+- Ensures your apps/services can communicate with both IPv4 and IPv6 clients
+- Future-proofs your setup while avoiding breakage of existing IPv4 systems
 
-Ensures your apps/services can communicate with both IPv4 and IPv6 clients.
-
-Future-proofs your setup while avoiding breakage of existing IPv4 systems.
-
-✅ Summary:
+**Summary:**
 In AWS, IPv6 runs in dual stack mode with IPv4. EC2s always keep a private IPv4 for VPC traffic, plus a public IPv6 for global reach. This gives flexibility during migration and ensures compatibility with both current (IPv4) and future (IPv6) internet standards.
 
-problems with IPV6 
-Problem
+### Problems with IPv6
+
+**Problem**
 
 You launch an EC2 instance (e.g., Istio) in a subnet, but it fails.
 
-At first, you might think: “Is it because there’s no IPv6 space?”
+At first, you might think: "Is it because there's no IPv6 space?"
 
-❌ Wrong → The issue is not IPv6.
+❌ **Wrong** → The issue is not IPv6.
 
-✅ The real issue = no available IPv4 addresses left in the subnet.
+✅ **The real issue** = no available IPv4 addresses left in the subnet.
 
-Why This Happens
+**Why This Happens**
 
-AWS VPCs always need IPv4 space, even when IPv6 is enabled.
+- AWS VPCs always need IPv4 space, even when IPv6 is enabled
+- IPv6 space is virtually unlimited, so you won't run out
+- But IPv4 space is limited (CIDR ranges like /28, /24, etc.)
+- If all IPv4s are used, you can't launch new instances — even if IPv6 is enabled
 
-IPv6 space is virtually unlimited, so you won’t run out.
+**Solution**
 
-But IPv4 space is limited (CIDR ranges like /28, /24, etc.).
+- Expand the IPv4 CIDR range of the subnet
+- Add more IPv4 addresses so new instances can launch
+- Keep in mind: AWS requires IPv4 to remain active → you can't go IPv6-only yet
 
-If all IPv4s are used, you can’t launch new instances — even if IPv6 is enabled.
-
-Solution
-
-Expand the IPv4 CIDR range of the subnet.
-
-Add more IPv4 addresses so new instances can launch.
-
-Keep in mind: AWS requires IPv4 to remain active → you can’t go IPv6-only yet.
-
-✅ Summary:
+**Summary:**
 In AWS, running out of IPv4 addresses (not IPv6) is a common cause of subnet issues. Even with dual-stack IPv6, you still need IPv4 space. Fix = add/expand the IPv4 CIDR block in your subnet.
 
- Egress-only Internet Gateway
-USED FOR ipV6 OML;Y
-SIMILAR TO nat GATEWAY BIT FRO IPV6
-ALLOWS INSTANVES IN YOUR VPC OUTBOUND CONNECTIONS OVER ipV6 while preventing the internet to initiaye and IPv6 connection to your instances 
-you must update the route tables 
+### Egress-only Internet Gateway
 
-🔹 Diagram Walkthrough
+![Egress-only Internet Gateway](https://github.com/user-attachments/assets/4084a8d7-0eb0-4cca-98b7-0806c46223be)
 
-Public Subnet (Left Box)
+**USED FOR IPv6 ONLY**
 
-Instance has an IPv6 address (2001:db8::b1c2).
+Similar to NAT Gateway but for IPv6
 
-Connected via a normal Internet Gateway.
+Allows instances in your VPC outbound connections over IPv6 while preventing the internet to initiate and IPv6 connection to your instances
 
-With this setup → connections can be initiated both ways:
+You must update the route tables
 
-The instance can connect to the internet.
+#### Diagram Walkthrough
 
-The internet can also initiate connections back (inbound).
+**Public Subnet (Left Box)**
+- Instance has an IPv6 address (2001:db8::b1c2)
+- Connected via a normal Internet Gateway
+- With this setup → connections can be initiated both ways:
+  - The instance can connect to the internet
+  - The internet can also initiate connections back (inbound)
 
-Private Subnet (Right Box)
+**Private Subnet (Right Box)**
+- Instance also has an IPv6 address (2001:db8::e1c3)
+- Uses an Egress-Only Internet Gateway
+- With this setup → only outbound connections are allowed:
+  - Instance can connect out to the internet
+  - Internet cannot initiate inbound connections
 
-Instance also has an IPv6 address (2001:db8::e1c3).
+**Key Point**
 
-Uses an Egress-Only Internet Gateway.
+- Egress-Only IGW = NAT Gateway equivalent for IPv6
+- Ensures outbound-only communication for private subnets
+- Protects resources from unwanted inbound IPv6 traffic
 
-With this setup → only outbound connections are allowed:
+**Summary (Diagram in Words)**
 
-Instance can connect out to the internet.
-
-Internet cannot initiate inbound connections.
-
-Key Point
-
-Egress-Only IGW = NAT Gateway equivalent for IPv6.
-
-Ensures outbound-only communication for private subnets.
-
-Protects resources from unwanted inbound IPv6 traffic.
-
-🔹 Summary (Diagram in Words)
-
-Left side (Public Subnet + Internet Gateway) → two-way communication possible.
-
-Right side (Private Subnet + Egress-Only IGW) → outbound-only communication, inbound is blocked.
+- **Left side** (Public Subnet + Internet Gateway) → two-way communication possible
+- **Right side** (Private Subnet + Egress-Only IGW) → outbound-only communication, inbound is blocked
 
 This makes Egress-Only IGWs perfect for securing IPv6-enabled private subnets.
-<img width="322" height="380" alt="image" src="https://github.com/user-attachments/assets/4084a8d7-0eb0-4cca-98b7-0806c46223be" />
 
-IPv6 routing 
-IPv6 Routing in Dual-Stack VPC
+### IPv6 Routing
 
-VPC Setup
+![IPv6 Routing](https://github.com/user-attachments/assets/30667217-3f2d-4113-9e2e-14b7e27f10d5)
 
-Dual-stack: supports both IPv4 and IPv6.
+#### IPv6 Routing in Dual-Stack VPC
 
-Each subnet has an IPv4 CIDR and an IPv6 CIDR.
+**VPC Setup**
+- Dual-stack: supports both IPv4 and IPv6
+- Each subnet has an IPv4 CIDR and an IPv6 CIDR
+- Two subnets: Public and Private
 
-Two subnets: Public and Private.
+**Public Subnet**
+- Has IPv4 + IPv6 enabled
+- EC2 instance gets:
+  - Private IPv4
+  - Elastic IP (public IPv4)
+  - Public IPv6 address
+- Can access the internet with both IPv4 and IPv6
 
-Public Subnet
+**Private Subnet**
+- No direct internet access
+- Instances get a private IPv4 and IPv6
+- Outbound traffic:
+  - IPv4 → NAT Gateway (in public subnet)
+  - IPv6 → Internet Gateway (direct)
 
-Has IPv4 + IPv6 enabled.
+**NAT Gateway**
+- Needed only for IPv4 outbound from private subnet
+- Not required for IPv6 – instances use Internet Gateway directly
 
-EC2 instance gets:
+**Route Tables**
 
-Private IPv4
+**Public subnet route table:**
+- Local routes for internal VPC CIDRs (IPv4 + IPv6)
+- All other IPv4 + IPv6 → Internet Gateway
 
-Elastic IP (public IPv4)
+**Private subnet route table:**
+- IPv4 → NAT Gateway
+- IPv6 → Internet Gateway
 
-Public IPv6 address
+**Key Difference (IPv4 vs IPv6)**
+- IPv4 private instances need NAT Gateway for internet
+- IPv6 private instances use Internet Gateway directly (no NAT needed)
 
-Can access the internet with both IPv4 and IPv6.
+### IPv6 Architecture
 
-Private Subnet
+![IPv6 Architecture](https://github.com/user-attachments/assets/ccc426da-f770-4702-a1d8-d63ee0ceae12)
 
-No direct internet access.
+#### VPC (with IPv4 + IPv6 ranges)
 
-Instances get a private IPv4 and IPv6.
+- The container for your AWS network
+- Has IPv4 CIDR (e.g., 10.0.0.0/16) and IPv6 CIDR (e.g., 2001:db8:1234:1a00::/56)
+- Subnets inside it inherit both ranges
 
-Outbound traffic:
-
-IPv4 → NAT Gateway (in public subnet).
-
-IPv6 → Internet Gateway (direct).
-
-NAT Gateway
-
-Needed only for IPv4 outbound from private subnet.
-
-Not required for IPv6 – instances use Internet Gateway directly.
-
-Route Tables
-
-Public subnet route table:
-
-Local routes for internal VPC CIDRs (IPv4 + IPv6).
-
-All other IPv4 + IPv6 → Internet Gateway.
-
-Private subnet route table:
-
-IPv4 → NAT Gateway.
-
-IPv6 → Internet Gateway.
-
-Key Difference (IPv4 vs IPv6)
-
-IPv4 private instances need NAT Gateway for internet.
-
-IPv6 private instances use Internet Gateway directly (no NAT needed).
-
-IPv6 routing archtcture 
-
-<img width="771" height="362" alt="image" src="https://github.com/user-attachments/assets/30667217-3f2d-4113-9e2e-14b7e27f10d5" />
-
-Ipv6 archetecture 
-VPC (with IPv4 + IPv6 ranges)
-
-The container for your AWS network.
-
-Has IPv4 CIDR (e.g., 10.0.0.0/16) and IPv6 CIDR (e.g., 2001:db8:1234:1a00::/56).
-
-Subnets inside it inherit both ranges.
-
-2. Public Subnet
+#### 2. Public Subnet
 
 EC2 instances here have:
-
-Private IPv4 (for local VPC communication).
-
-Elastic IP (EIP) to map their IPv4 to the internet.
-
-IPv6 address that is always publicly routable.
+- Private IPv4 (for local VPC communication)
+- Elastic IP (EIP) to map their IPv4 to the internet
+- IPv6 address that is always publicly routable
 
 They can connect to the internet directly over both IPv4 + IPv6.
 
-3. Private Subnet
+#### 3. Private Subnet
 
 EC2 instances here have:
-
-Private IPv4 only (not directly routable).
-
-IPv6 address but secured with outbound-only routing.
+- Private IPv4 only (not directly routable)
+- IPv6 address but secured with outbound-only routing
 
 They cannot directly talk to the internet — they need gateways.
 
-4. NAT Gateway (for IPv4)
+#### 4. NAT Gateway (for IPv4)
 
-Lives in the public subnet with an Elastic IP.
+- Lives in the public subnet with an Elastic IP
+- Lets private instances send traffic to the internet (e.g., OS updates, APIs)
+- Translates private IPv4 → public IPv4
+- Blocks inbound connections (internet can't reach private instances)
 
-Lets private instances send traffic to the internet (e.g., OS updates, APIs).
+#### 5. Internet Gateway (IGW)
 
-Translates private IPv4 → public IPv4.
+- Attached to the VPC
+- Provides two-way communication between VPC resources and the internet
+- Used by:
+  - Public IPv4 traffic (via Elastic IPs)
+  - All IPv6 traffic (since IPv6 addresses are public by default)
 
-Blocks inbound connections (internet can’t reach private instances).
+#### 6. Egress-Only Internet Gateway (EIGW)
 
-5. Internet Gateway (IGW)
+- Special gateway for IPv6 traffic from private subnets
+- Works like a NAT gateway but for IPv6
+- Allows outbound-only connections (EC2 → internet)
+- Blocks inbound connections (internet → EC2)
 
-Attached to the VPC.
+#### 7. Route Tables
 
-Provides two-way communication between VPC resources and the internet.
+**Public Subnet RT:** sends all 0.0.0.0/0 (IPv4) and ::/0 (IPv6) to the Internet Gateway.
 
-Used by:
+**Private Subnet RT:**
+- IPv4 → NAT Gateway
+- IPv6 → Egress-Only Internet Gateway
 
-Public IPv4 traffic (via Elastic IPs).
+**Summary**
 
-All IPv6 traffic (since IPv6 addresses are public by default).
+- **NAT Gateway** → IPv4 outbound only for private subnets
+- **IGW** → Direct internet access (both IPv4 + IPv6)
+- **EIGW** → IPv6 outbound only for private subnets
+- **Public Subnet** → Direct internet access
+- **Private Subnet** → Secured, needs NAT (IPv4) or EIGW (IPv6) to talk out
 
-6. Egress-Only Internet Gateway (EIGW)
+### VPC Summary
 
-Special gateway for IPv6 traffic from private subnets.
+#### Core VPC Concepts Recap
 
-Works like a NAT gateway but for IPv6.
+**CIDR (Classless Inter-Domain Routing)**
+- Defines IP address ranges (IPv4 & IPv6)
+- Sets the boundaries for IP allocation in your VPC
 
-Allows outbound-only connections (EC2 → internet).
+**VPC (Virtual Private Cloud)**
+- Your isolated, private slice of AWS network
+- You define IP ranges (CIDRs) for resources
 
-Blocks inbound connections (internet → EC2).
+**Subnets**
+- Divide a VPC into smaller networks
+- Each subnet tied to an Availability Zone (AZ)
+- Can assign unique CIDRs per subnet
 
-7. Route Tables
+**Internet Gateway (IGW)**
+- Provides VPC internet access (IPv4 & IPv6)
+- Attached at the VPC level
 
-Public Subnet RT: sends all 0.0.0.0/0 (IPv4) and ::/0 (IPv6) to the Internet Gateway.
+**Route Tables**
+- Control traffic flow
+- Routes traffic to IGWs, NAT gateways, VPC peering, or endpoints
 
-Private Subnet RT:
+**Bastion Host**
+- Public EC2 used as a secure jump server to access private EC2 instances
 
-IPv4 → NAT Gateway.
+**NAT Instance**
+- Legacy way to give private EC2s internet access (IPv4)
+- Requires manual setup (e.g., disable source/dest check)
 
-IPv6 → Egress-Only Internet Gateway.
+**NAT Gateway**
+- AWS-managed NAT service (scalable, HA)
+- Lets private instances reach the internet via IPv4
 
-✅ Summary
+**NACLs (Network ACLs)**
+- Stateless firewalls at the subnet level
+- Inbound & outbound rules evaluated separately
 
-NAT Gateway → IPv4 outbound only for private subnets.
+**Security Groups (SGs)**
+- Stateful firewalls at the instance level
+- Allow rules automatically allow return traffic
 
-IGW → Direct internet access (both IPv4 + IPv6).
+**VPC Peering**
+- Connects two VPCs via AWS internal network
+- Non-transitive (A↔B and B↔C ≠ A↔C)
 
-EIGW → IPv6 outbound only for private subnets.
+**Transit Gateway**
+- Hub-and-spoke model
+- Provides transitive connectivity across VPCs, VPNs, Direct Connect
 
-Public Subnet → Direct internet access.
+**VPC Endpoints**
+- Private access to AWS services (e.g., S3, DynamoDB) without using the internet
 
-Private Subnet → Secured, needs NAT (IPv4) or EIGW (IPv6) to talk out.
-<img width="785" height="375" alt="image" src="https://github.com/user-attachments/assets/ccc426da-f770-4702-a1d8-d63ee0ceae12" />
+**PrivateLink (VPC Endpoint Services)**
+- Connects consumer VPC to provider VPC privately
+- Requires NLB or ENIs
+- No need for peering, NAT, or internet
 
-VPC summary 
-Core VPC Concepts Recap
-
-CIDR (Classless Inter-Domain Routing)
-
-Defines IP address ranges (IPv4 & IPv6).
-
-Sets the boundaries for IP allocation in your VPC.
-
-VPC (Virtual Private Cloud)
-
-Your isolated, private slice of AWS network.
-
-You define IP ranges (CIDRs) for resources.
-
-Subnets
-
-Divide a VPC into smaller networks.
-
-Each subnet tied to an Availability Zone (AZ).
-
-Can assign unique CIDRs per subnet.
-
-Internet Gateway (IGW)
-
-Provides VPC internet access (IPv4 & IPv6).
-
-Attached at the VPC level.
-
-Route Tables
-
-Control traffic flow.
-
-Routes traffic to IGWs, NAT gateways, VPC peering, or endpoints.
-
-Bastion Host
-
-Public EC2 used as a secure jump server to access private EC2 instances.
-
-NAT Instance
-
-Legacy way to give private EC2s internet access (IPv4).
-
-Requires manual setup (e.g., disable source/dest check).
-
-NAT Gateway
-
-AWS-managed NAT service (scalable, HA).
-
-Lets private instances reach the internet via IPv4.
-
-NACLs (Network ACLs)
-
-Stateless firewalls at the subnet level.
-
-Inbound & outbound rules evaluated separately.
-
-Security Groups (SGs)
-
-Stateful firewalls at the instance level.
-
-Allow rules automatically allow return traffic.
-
-VPC Peering
-
-Connects two VPCs via AWS internal network.
-
-Non-transitive (A↔B and B↔C ≠ A↔C).
-
-Transit Gateway
-
-Hub-and-spoke model.
-
-Provides transitive connectivity across VPCs, VPNs, Direct Connect.
-
-VPC Endpoints
-
-Private access to AWS services (e.g., S3, DynamoDB) without using the internet.
-
-PrivateLink (VPC Endpoint Services)
-
-Connects consumer VPC to provider VPC privately.
-
-Requires NLB or ENIs.
-
-No need for peering, NAT, or internet.
-
-Egress-Only Internet Gateway
-
-For IPv6 outbound only.
-
-Blocks inbound internet traffic (like NAT Gateway but IPv6).
-
-✅ In short:
-
-CIDRs & Subnets define the network.
-
-IGWs, NAT, Egress-only control internet connectivity.
-
-Route Tables direct traffic.
-
-SGs & NACLs secure traffic.
-
-Peering, TGWs, Endpoints, PrivateLink connect networks & services.
+**Egress-Only Internet Gateway**
+- For IPv6 outbound only
+- Blocks inbound internet traffic (like NAT Gateway but IPv6)
+
+**In short:**
+
+- **CIDRs & Subnets** define the network
+- **IGWs, NAT, Egress-only** control internet connectivity
+- **Route Tables** direct traffic
+- **SGs & NACLs** secure traffic
+- **Peering, TGWs, Endpoints, PrivateLink** connect networks & services
 
 
 
