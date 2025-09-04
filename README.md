@@ -3311,83 +3311,262 @@ This makes Egress-Only IGWs perfect for securing IPv6-enabled private subnets.
 <img width="322" height="380" alt="image" src="https://github.com/user-attachments/assets/4084a8d7-0eb0-4cca-98b7-0806c46223be" />
 
 IPv6 routing 
-VPC (Dual-Stack)
+IPv6 Routing in Dual-Stack VPC
 
-The VPC has both IPv4 (10.0.0.0/16) and IPv6 (2001:db8:1234:1a00::/56) address ranges.
+VPC Setup
 
-This means all subnets inside can use both IPv4 and IPv6.
+Dual-stack: supports both IPv4 and IPv6.
+
+Each subnet has an IPv4 CIDR and an IPv6 CIDR.
+
+Two subnets: Public and Private.
+
+Public Subnet
+
+Has IPv4 + IPv6 enabled.
+
+EC2 instance gets:
+
+Private IPv4
+
+Elastic IP (public IPv4)
+
+Public IPv6 address
+
+Can access the internet with both IPv4 and IPv6.
+
+Private Subnet
+
+No direct internet access.
+
+Instances get a private IPv4 and IPv6.
+
+Outbound traffic:
+
+IPv4 → NAT Gateway (in public subnet).
+
+IPv6 → Internet Gateway (direct).
+
+NAT Gateway
+
+Needed only for IPv4 outbound from private subnet.
+
+Not required for IPv6 – instances use Internet Gateway directly.
+
+Route Tables
+
+Public subnet route table:
+
+Local routes for internal VPC CIDRs (IPv4 + IPv6).
+
+All other IPv4 + IPv6 → Internet Gateway.
+
+Private subnet route table:
+
+IPv4 → NAT Gateway.
+
+IPv6 → Internet Gateway.
+
+Key Difference (IPv4 vs IPv6)
+
+IPv4 private instances need NAT Gateway for internet.
+
+IPv6 private instances use Internet Gateway directly (no NAT needed).
+
+IPv6 routing archtcture 
+
+<img width="771" height="362" alt="image" src="https://github.com/user-attachments/assets/30667217-3f2d-4113-9e2e-14b7e27f10d5" />
+
+Ipv6 archetecture 
+VPC (with IPv4 + IPv6 ranges)
+
+The container for your AWS network.
+
+Has IPv4 CIDR (e.g., 10.0.0.0/16) and IPv6 CIDR (e.g., 2001:db8:1234:1a00::/56).
+
+Subnets inside it inherit both ranges.
 
 2. Public Subnet
 
-CIDR: 10.0.0.0/24 (IPv4) + 2001:db8:1234:1a00::/64 (IPv6).
+EC2 instances here have:
 
-Contains a Web Server with:
+Private IPv4 (for local VPC communication).
 
-Private IPv4: 10.0.0.5
+Elastic IP (EIP) to map their IPv4 to the internet.
 
-Elastic IPv4 (public): 198.51.100.1
+IPv6 address that is always publicly routable.
 
-Public IPv6: 2001:db8:1234:1a00::/…
-
-👉 This server can talk to the internet directly:
-
-IPv4 traffic → goes via Internet Gateway (using Elastic IP).
-
-IPv6 traffic → goes directly via Internet Gateway (no NAT needed).
+They can connect to the internet directly over both IPv4 + IPv6.
 
 3. Private Subnet
 
-CIDR: 10.0.1.0/24 (IPv4) + 2001:db8:1234:1a02::/64 (IPv6).
+EC2 instances here have:
 
-Contains a Server with:
+Private IPv4 only (not directly routable).
 
-Private IPv4: 10.0.1.5
+IPv6 address but secured with outbound-only routing.
 
-IPv6: 2001:db8:1234:1a02::456
+They cannot directly talk to the internet — they need gateways.
 
-👉 Internet access for this server:
+4. NAT Gateway (for IPv4)
 
-IPv4 traffic → must go through the NAT Gateway in the public subnet (since private IPv4s can’t talk to internet directly).
+Lives in the public subnet with an Elastic IP.
 
-IPv6 traffic → can go directly to Internet Gateway (IPv6 doesn’t need NAT).
+Lets private instances send traffic to the internet (e.g., OS updates, APIs).
 
-4. NAT Gateway
+Translates private IPv4 → public IPv4.
 
-Placed in the public subnet.
+Blocks inbound connections (internet can’t reach private instances).
 
-Provides IPv4 internet access for private subnets.
+5. Internet Gateway (IGW)
 
-Not used for IPv6 (since IPv6 supports direct routing through IGW).
+Attached to the VPC.
 
-5. Route Tables
+Provides two-way communication between VPC resources and the internet.
 
-Public Subnet Route Table:
+Used by:
 
-Local (10.0.0.0/16, 2001:db8:1234:1a00::/56) → local
+Public IPv4 traffic (via Elastic IPs).
 
-All other IPv4 (0.0.0.0/0) → Internet Gateway
+All IPv6 traffic (since IPv6 addresses are public by default).
 
-All other IPv6 (::/0) → Internet Gateway
+6. Egress-Only Internet Gateway (EIGW)
 
-Private Subnet Route Table:
+Special gateway for IPv6 traffic from private subnets.
 
-Local traffic → local
+Works like a NAT gateway but for IPv6.
 
-IPv4 internet (0.0.0.0/0) → NAT Gateway
+Allows outbound-only connections (EC2 → internet).
 
-IPv6 internet (::/0) → Internet Gateway
+Blocks inbound connections (internet → EC2).
 
-✅ Big Idea (what the diagram shows):
+7. Route Tables
 
-IPv4: Private subnets can’t reach the internet directly → need NAT.
+Public Subnet RT: sends all 0.0.0.0/0 (IPv4) and ::/0 (IPv6) to the Internet Gateway.
 
-IPv6: Both public and private subnets can reach the internet directly via IGW → no NAT needed.
-<img width="771" height="362" alt="image" src="https://github.com/user-attachments/assets/30667217-3f2d-4113-9e2e-14b7e27f10d5" />
+Private Subnet RT:
 
+IPv4 → NAT Gateway.
 
+IPv6 → Egress-Only Internet Gateway.
 
+✅ Summary
 
+NAT Gateway → IPv4 outbound only for private subnets.
 
+IGW → Direct internet access (both IPv4 + IPv6).
+
+EIGW → IPv6 outbound only for private subnets.
+
+Public Subnet → Direct internet access.
+
+Private Subnet → Secured, needs NAT (IPv4) or EIGW (IPv6) to talk out.
+<img width="785" height="375" alt="image" src="https://github.com/user-attachments/assets/ccc426da-f770-4702-a1d8-d63ee0ceae12" />
+
+VPC summary 
+Core VPC Concepts Recap
+
+CIDR (Classless Inter-Domain Routing)
+
+Defines IP address ranges (IPv4 & IPv6).
+
+Sets the boundaries for IP allocation in your VPC.
+
+VPC (Virtual Private Cloud)
+
+Your isolated, private slice of AWS network.
+
+You define IP ranges (CIDRs) for resources.
+
+Subnets
+
+Divide a VPC into smaller networks.
+
+Each subnet tied to an Availability Zone (AZ).
+
+Can assign unique CIDRs per subnet.
+
+Internet Gateway (IGW)
+
+Provides VPC internet access (IPv4 & IPv6).
+
+Attached at the VPC level.
+
+Route Tables
+
+Control traffic flow.
+
+Routes traffic to IGWs, NAT gateways, VPC peering, or endpoints.
+
+Bastion Host
+
+Public EC2 used as a secure jump server to access private EC2 instances.
+
+NAT Instance
+
+Legacy way to give private EC2s internet access (IPv4).
+
+Requires manual setup (e.g., disable source/dest check).
+
+NAT Gateway
+
+AWS-managed NAT service (scalable, HA).
+
+Lets private instances reach the internet via IPv4.
+
+NACLs (Network ACLs)
+
+Stateless firewalls at the subnet level.
+
+Inbound & outbound rules evaluated separately.
+
+Security Groups (SGs)
+
+Stateful firewalls at the instance level.
+
+Allow rules automatically allow return traffic.
+
+VPC Peering
+
+Connects two VPCs via AWS internal network.
+
+Non-transitive (A↔B and B↔C ≠ A↔C).
+
+Transit Gateway
+
+Hub-and-spoke model.
+
+Provides transitive connectivity across VPCs, VPNs, Direct Connect.
+
+VPC Endpoints
+
+Private access to AWS services (e.g., S3, DynamoDB) without using the internet.
+
+PrivateLink (VPC Endpoint Services)
+
+Connects consumer VPC to provider VPC privately.
+
+Requires NLB or ENIs.
+
+No need for peering, NAT, or internet.
+
+Egress-Only Internet Gateway
+
+For IPv6 outbound only.
+
+Blocks inbound internet traffic (like NAT Gateway but IPv6).
+
+✅ In short:
+
+CIDRs & Subnets define the network.
+
+IGWs, NAT, Egress-only control internet connectivity.
+
+Route Tables direct traffic.
+
+SGs & NACLs secure traffic.
+
+Peering, TGWs, Endpoints, PrivateLink connect networks & services.
 
 
 
