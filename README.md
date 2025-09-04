@@ -2564,3 +2564,379 @@ EC2s launched here get a public + private IPv4 by default.
 EC2s also get DNS names (public + private).
 
 Includes a default security group + route table.
+
+VPC in AWS
+AWS VPC (Virtual Private Cloud) Notes
+
+A VPC = your own private network in AWS (like a mini data center).
+
+You can have up to 5 VPCs per region by default (limit can be increased).
+
+🔹 CIDR Range Limits
+
+Smallest: /28 → 16 IPs
+
+Largest: /16 → 65,536 IPs
+
+🔹 Allowed Private IP Ranges
+
+10.0.0.0/8 → very large networks
+
+172.16.0.0 – 172.31.255.255 (/12) → AWS commonly uses 172.31.0.0/16 for default VPCs
+
+192.168.0.0/16 → common for home networks
+
+🔹 Important Rule
+
+🚨 VPC CIDR must not overlap with:
+
+Other VPCs
+
+Your corporate network
+
+Any connected network
+
+Otherwise, routing will break.
+
+👉 In short:
+A VPC gives you a custom private network in AWS, with flexible IP ranges, but you need to plan the CIDR carefully to avoid overlap.
+
+VPC - subnet IPv4 
+Subnets in a VPC
+
+Subnets = smaller networks inside your VPC.
+
+Spread across Availability Zones (AZs) for redundancy & high availability.
+
+Can be:
+
+Public subnet → internet access allowed.
+
+Private subnet → no direct internet access.
+
+🔹 AWS Reserves 5 IPs in Every Subnet
+
+Example: 10.0.0.0/24 → 256 IPs total, but 5 are reserved:
+
+.0 → Network address
+
+.1 → VPC router
+
+.2 → Amazon DNS
+
+.3 → Future use
+
+.255 → Broadcast (AWS doesn’t use broadcast, but still reserved)
+
+👉 So usable IPs = total - 5.
+
+🔹 Example of Planning
+
+/27 = 32 IPs → usable = 27 (too small for 29 instances).
+
+/26 = 64 IPs → usable = 59 (fits 29 instances).
+
+Internet gateway 
+alloews resources in a vpc to connect ot the internet 
+scales horizontally and is highlly avalible and redundant must be created seperatkly from a VPC
+one VPC van onoy be attached to one IGW and ect
+IGW on their own do not allow iunternet access
+rouite tables must also be updated 
+
+bastion hosts 
+hat is a Bastion Host?
+
+A bastion host = a special EC2 instance in a public subnet.
+
+Acts as a secure bridge to reach private EC2 instances in a private subnet.
+
+You SSH into the bastion first, then from there into your private instances.
+
+🔹 Why Do We Need Them?
+
+Private EC2 instances (databases, backends) should not be exposed to the internet.
+
+But admins still need a way to log in for maintenance/updates.
+
+Bastion hosts provide a controlled, secure entry point.
+
+🔹 How It Works (with your diagram)
+
+Bastion Host sits in a public subnet.
+
+You SSH into the bastion from your office/home IP.
+
+From the bastion, you SSH into private EC2s inside the private subnet.
+
+🔹 Security Best Practices
+
+Bastion Security Group → only allow inbound SSH from trusted IPs (e.g., office IP range).
+
+Private EC2 Security Group → only allow inbound SSH from the bastion host (not the whole internet).
+
+Use key pairs or even MFA for stronger access control.
+
+✅ Summary:
+A bastion host = secure gateway to private EC2s. It prevents exposing sensitive systems directly to the internet while still allowing admins safe access when needed.
+
+Walkthrough of the Diagram
+
+User (Admin)
+
+You (the admin) are outside the VPC.
+
+You connect via SSH into the bastion host.
+
+Public Subnet (Top Box)
+
+Contains the bastion host EC2 instance.
+
+Security Group (BastionHost-SG) only allows SSH from trusted IPs (like your office or home).
+
+Private Subnet (Bottom Box)
+
+Contains the private EC2 instances (databases, backend servers).
+
+These cannot be reached from the internet directly.
+
+Security Group (LinuxInstance-SG) allows SSH only from the bastion host.
+
+Flow
+
+You → SSH into Bastion Host (public subnet).
+
+Bastion Host → SSH into Private EC2s (private subnet).
+
+🔹 Key Point
+
+The bastion host acts as the middleman:
+
+Publicly accessible but restricted (secure).
+
+Lets you safely reach private instances without exposing them to the internet.
+<img width="277" height="380" alt="image" src="https://github.com/user-attachments/assets/3ae70930-5bfc-4952-960f-8e4313d784d2" />
+
+NAT gateway 
+What is a NAT Gateway?
+
+NAT = Network Address Translation
+
+Lets private subnet instances access the internet (updates, APIs, patches).
+
+Blocks inbound traffic → internet cannot reach private instances.
+
+🔹 Why It’s Important
+
+Keeps private resources secure (not exposed).
+
+Still allows outbound internet access when needed.
+
+🔹 Key Features
+
+Fully managed by AWS → no patching, scaling, or maintenance.
+
+High bandwidth → 5 Gbps baseline, auto-scales up to 100 Gbps.
+
+AZ specific → must deploy 1 per Availability Zone for redundancy.
+
+Uses an Elastic IP for outbound connections.
+
+Requires an Internet Gateway (NAT gateway → Internet Gateway → Internet).
+
+No Security Groups needed (unlike NAT instances).
+
+🔹 Limitations
+
+Instances in the same subnet as the NAT gateway can’t use it.
+
+Billed hourly + per GB of traffic → can get costly at scale.
+
+🔹 Typical Setup
+
+Private Subnet → routes outbound traffic → NAT Gateway (in Public Subnet) → Internet Gateway → Internet.
+
+✅ Summary:
+A NAT Gateway = a secure, managed bridge for private subnet instances to reach the internet outbound only, while keeping them safe from inbound internet traffic
+
+NAT Gateway with High Availability
+NAT Gateway & High Availability
+1. The Setup (from the diagram)
+
+VPC has:
+
+Public Subnets (top row) → each with a NAT Gateway.
+
+Private Subnets (bottom row) → EC2 instances.
+
+NAT Gateways connect → Internet Gateway → Internet.
+
+Router handles the routing between subnets.
+
+2. The Problem (Single NAT Gateway)
+
+NAT Gateways are AZ-specific.
+
+If you only have one NAT Gateway in AZ-A, and AZ-A goes down:
+
+✅ EC2s in AZ-B are still running.
+
+❌ But they lose internet access, because their traffic depended on the NAT Gateway in AZ-A.
+
+3. The Solution (Multiple NAT Gateways)
+
+Deploy a NAT Gateway in each AZ where you have resources.
+
+Example:
+
+NAT Gateway in AZ-A → serves EC2s in AZ-A.
+
+NAT Gateway in AZ-B → serves EC2s in AZ-B.
+
+If one AZ fails, the other AZ still has internet connectivity.
+
+🔹 Why This Matters
+
+High Availability → avoids single points of failure.
+
+Disaster Recovery → ensures your private workloads (databases, app servers) can still reach the internet for updates/APIs.
+
+✅ Summary:
+A NAT Gateway is only highly available within its own AZ. To achieve true high availability across multiple AZs, deploy one NAT Gateway per AZ.
+<img width="417" height="439" alt="image" src="https://github.com/user-attachments/assets/74f9fd5f-9753-497f-8ac4-c7a0d2fa3cb1" />
+
+NAT Gateway vs NAT Instance
+| Feature              | **NAT Gateway** 🟦                                | **NAT Instance** 🟧                          |
+| -------------------- | ------------------------------------------------- | -------------------------------------------- |
+| **Availability**     | HA within an AZ (deploy 1 per AZ for multi-AZ HA) | No built-in HA (needs failover scripts)      |
+| **Bandwidth**        | Up to **100 Gbps**, auto-scales                   | Limited by EC2 instance type                 |
+| **Maintenance**      | Fully managed by AWS (no patches/updates)         | You manage OS, patches, scaling              |
+| **Cost Model**       | Simple: hourly + per GB data transfer             | Based on EC2 instance type + network charges |
+| **Elastic IP**       | Requires Elastic IP                               | Requires Elastic IP                          |
+| **Security Groups**  | Not needed (AWS manages security)                 | Can attach SGs like any EC2                  |
+| **Bastion Host Use** | ❌ No (only forwards traffic)                      | ✅ Yes (can double as bastion host/jump box)  |
+| **Scaling**          | Auto-scales                                       | Manual (resize EC2 or add more)              |
+Summary
+
+NAT Gateway → Best for production: scalable, simple, low maintenance, but higher cost.
+
+NAT Instance → More flexible & cheaper for small setups, but requires manual management and gives you extra options (like doubling as a bastion host).
+<img width="764" height="338" alt="image" src="https://github.com/user-attachments/assets/da1c6e6d-6adb-4aee-afa8-8c9a9e51d19e" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
