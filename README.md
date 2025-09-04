@@ -2821,7 +2821,50 @@ NAT Gateway → Best for production: scalable, simple, low maintenance, but high
 
 NAT Instance → More flexible & cheaper for small setups, but requires manual management and gives you extra options (like doubling as a bastion host).
 <img width="764" height="338" alt="image" src="https://github.com/user-attachments/assets/da1c6e6d-6adb-4aee-afa8-8c9a9e51d19e" />
+🔹 NACLs (Network Access Control Lists)
+1. Basics
 
+Work at the subnet level (1 NACL per subnet).
+
+Act like a big filter that allows or denies traffic.
+
+Every subnet gets a default NACL, but you can create custom ones.
+
+2. Key Characteristics
+
+Stateless → return traffic isn’t automatically allowed (must add both inbound + outbound rules).
+
+Rules are numbered (1–32766) →
+
+Lower numbers = higher precedence.
+
+First match wins (no further rules are checked).
+
+Catchall rule (*) at the end → denies everything not explicitly allowed.
+
+3. Example
+
+Rule #100: ALLOW 10.0.0.10/32
+
+Rule #200: DENY 10.0.0.10/32
+👉 Rule #100 takes precedence (lower number wins).
+
+4. Best Practices
+
+Use rule numbers in increments of 100 (100, 200, 300, …) → easy to insert new rules later.
+
+Use NACLs for broad subnet-level blocking (e.g., block malicious IPs).
+
+5. Why Use NACLs?
+
+Extra layer of security on top of Security Groups.
+
+Good for subnet-wide rules (affects all resources in that subnet).
+
+Useful for blocking specific IPs/ranges before they reach your instances.
+
+✅ In summary:
+NACLs = stateless subnet firewalls. They control traffic in/out of a subnet with numbered rules (first match wins). Great for broad blocking and defense in depth.
 
 
 
